@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Entre na sua conta ou cadastre-se no salão Aline Dan." />
+  <title>Entrar · Aline Dan Espaço Lounge</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Great+Vibes&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=48" />
+</head>
+<body class="auth-body">
+  <main class="auth-layout">
+    <!-- Painel decorativo (desktop) -->
+    <aside class="auth-aside" aria-hidden="true">
+      <div class="auth-aside-inner">
+        <span class="brand-script auth-aside-brand">Aline Dan</span>
+        <p class="auth-aside-tag">Beleza com hora marcada</p>
+        <ul class="auth-aside-list">
+          <li><svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Agende online em segundos</li>
+          <li><svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Seus horários salvos na sua conta</li>
+          <li><svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Cancele e remarque quando precisar</li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- Cartão de login/cadastro -->
+    <div class="auth-main">
+      <a href="index.html" class="auth-back">
+        <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Voltar para o site
+      </a>
+
+      <div class="auth-card">
+        <a href="index.html" class="brand auth-card-brand" aria-label="Aline Dan — voltar ao início">
+          <span class="brand-script">Aline Dan</span>
+          <span class="brand-sub">Espaço Lounge</span>
+        </a>
+
+        <h1 class="modal-title" id="authTitle">Bem-vinda de volta</h1>
+        <p class="modal-notice" id="authNotice" hidden></p>
+
+        <div class="auth-tabs" role="tablist" aria-label="Entrar ou criar conta">
+          <button type="button" class="auth-tab is-active" id="tabLogin" role="tab" aria-selected="true" aria-controls="loginForm">Entrar</button>
+          <button type="button" class="auth-tab" id="tabRegister" role="tab" aria-selected="false" aria-controls="registerForm">Criar conta</button>
+        </div>
+
+        <form id="loginForm" role="tabpanel" novalidate>
+          <div class="form-field">
+            <label for="loginEmail">E-mail <span class="req" aria-hidden="true">*</span></label>
+            <input type="email" id="loginEmail" name="email" autocomplete="email" required placeholder="voce@email.com" />
+          </div>
+          <div class="form-field">
+            <label for="loginPassword">Senha <span class="req" aria-hidden="true">*</span></label>
+            <div class="password-wrap">
+              <input type="password" id="loginPassword" name="password" autocomplete="current-password" required placeholder="Sua senha" />
+              <button type="button" class="password-toggle" data-toggle-password="loginPassword" aria-label="Mostrar senha" aria-pressed="false">
+                <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </div>
+          <p class="forgot-link-row"><a href="redefinir-senha.html" class="link-button">Esqueci minha senha</a></p>
+          <p class="field-error" id="loginError" role="alert" hidden></p>
+          <button type="submit" class="btn btn-primary btn-block" id="btnLogin">
+            <span class="btn-label">Entrar</span>
+            <span class="btn-spinner" aria-hidden="true"></span>
+          </button>
+          <p class="auth-switch-hint">Primeira vez aqui? <button type="button" class="link-button" data-switch-tab="register">Crie sua conta</button></p>
+        </form>
+
+        <form id="registerForm" role="tabpanel" novalidate hidden>
+          <div class="form-field">
+            <label for="regName">Seu nome <span class="req" aria-hidden="true">*</span></label>
+            <input type="text" id="regName" name="name" autocomplete="name" required minlength="3" placeholder="Ex.: Ana Paula Souza" />
+          </div>
+          <div class="form-field">
+            <label for="regEmail">E-mail <span class="req" aria-hidden="true">*</span></label>
+            <input type="email" id="regEmail" name="email" autocomplete="email" required placeholder="voce@email.com" />
+          </div>
+          <div class="form-field">
+            <label for="regPhone">WhatsApp <span class="req" aria-hidden="true">*</span></label>
+            <input type="tel" id="regPhone" name="phone" autocomplete="tel" inputmode="numeric" required placeholder="(11) 99999-9999" />
+          </div>
+          <div class="form-field">
+            <label for="regPassword">Senha <span class="req" aria-hidden="true">*</span></label>
+            <div class="password-wrap">
+              <input type="password" id="regPassword" name="password" autocomplete="new-password" required minlength="6" placeholder="Mínimo 6 caracteres" />
+              <button type="button" class="password-toggle" data-toggle-password="regPassword" aria-label="Mostrar senha" aria-pressed="false">
+                <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+            <p class="field-hint">Use pelo menos 6 caracteres.</p>
+          </div>
+          <p class="field-error" id="registerError" role="alert" hidden></p>
+          <button type="submit" class="btn btn-primary btn-block" id="btnRegister">
+            <span class="btn-label">Criar minha conta</span>
+            <span class="btn-spinner" aria-hidden="true"></span>
+          </button>
+          <p class="auth-switch-hint">Já tem conta? <button type="button" class="link-button" data-switch-tab="login">Entre aqui</button></p>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script src="common.js?v=48"></script>
+  <script src="login.js?v=48"></script>
+</body>
+</html>

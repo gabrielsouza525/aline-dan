@@ -1,0 +1,15 @@
+# Credenciais do banco e do e-mail — copie de api/config.example.php
+api/config.php
+
+# Gerados em tempo de execução
+storage/
+*.log
+
+# Backups e dumps
+*-backup-*/
+*.sql.bak
+
+# Lixo do sistema
+Thumbs.db
+desktop.ini
+.DS_Store

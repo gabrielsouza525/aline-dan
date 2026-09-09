@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <title>Redefinir senha · Aline Dan Espaço Lounge</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Great+Vibes&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=48" />
+</head>
+<body class="auth-body">
+  <main class="auth-layout auth-layout-single">
+    <div class="auth-main">
+      <a href="login.html" class="auth-back">
+        <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Voltar para o login
+      </a>
+
+      <div class="auth-card">
+        <a href="index.html" class="brand auth-card-brand" aria-label="Aline Dan — voltar ao início">
+          <span class="brand-script">Aline Dan</span>
+          <span class="brand-sub">Espaço Lounge</span>
+        </a>
+
+        <h1 class="modal-title" id="resetTitle">Recuperar acesso</h1>
+        <p class="modal-notice" id="resetNotice" hidden></p>
+
+        <!-- Passo 1: pedir o link por e-mail -->
+        <form id="requestForm" novalidate>
+          <p class="account-card-sub">Informe o e-mail da sua conta e enviaremos um link para criar uma nova senha.</p>
+          <div class="form-field">
+            <label for="fpEmail">E-mail <span class="req" aria-hidden="true">*</span></label>
+            <input type="email" id="fpEmail" name="email" autocomplete="email" required placeholder="voce@email.com" />
+          </div>
+          <p class="field-error" id="requestError" role="alert" hidden></p>
+          <button type="submit" class="btn btn-primary btn-block" id="btnRequest">
+            <span class="btn-label">Enviar link de recuperação</span>
+            <span class="btn-spinner" aria-hidden="true"></span>
+          </button>
+        </form>
+
+        <!-- Passo 2: definir a nova senha (com ?token=...) -->
+        <form id="resetForm" novalidate hidden>
+          <div class="form-field">
+            <label for="rpNew">Nova senha <span class="req" aria-hidden="true">*</span></label>
+            <div class="password-wrap">
+              <input type="password" id="rpNew" autocomplete="new-password" required minlength="6" placeholder="Mínimo 6 caracteres" />
+              <button type="button" class="password-toggle" data-toggle-password="rpNew" aria-label="Mostrar senha" aria-pressed="false">
+                <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="form-field">
+            <label for="rpConfirm">Confirmar nova senha <span class="req" aria-hidden="true">*</span></label>
+            <input type="password" id="rpConfirm" autocomplete="new-password" required minlength="6" />
+          </div>
+          <p class="field-error" id="resetError" role="alert" hidden></p>
+          <button type="submit" class="btn btn-primary btn-block" id="btnReset">
+            <span class="btn-label">Salvar nova senha</span>
+            <span class="btn-spinner" aria-hidden="true"></span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script src="common.js?v=48"></script>
+  <script src="redefinir.js?v=48"></script>
+</body>
+</html>

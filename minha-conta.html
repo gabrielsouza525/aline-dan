@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Sua conta no salão Aline Dan: dados, horários marcados e histórico de visitas." />
+  <title>Minha conta · Aline Dan Espaço Lounge</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Great+Vibes&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=48" />
+</head>
+<body>
+  <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+  <header class="site-header is-solid">
+    <div class="container header-inner">
+      <a href="index.html" class="header-back">
+        <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        <span>Ver o site</span>
+      </a>
+
+      <a href="index.html" class="brand" aria-label="Aline Dan — início">
+        <span class="brand-script">Aline Dan</span>
+        <span class="brand-sub">Espaço Lounge</span>
+      </a>
+
+      <nav class="account-nav" aria-label="Navegação da conta">
+        <a href="index.html#agendar" class="btn btn-primary btn-sm">Agendar</a>
+        <button type="button" class="btn-logout" id="btnLogout" aria-label="Sair da conta" title="Sair">
+          <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="conteudo" class="account-page">
+    <div class="container">
+      <!-- Carregando -->
+      <div id="accountLoading" class="bookings-empty">
+        <p>Carregando sua conta…</p>
+      </div>
+
+      <div id="accountContent" hidden>
+        <header class="account-head">
+          <p class="eyebrow">Área do cliente</p>
+          <h1 id="accountGreeting">Minha conta</h1>
+          <p class="section-sub" id="accountSub"></p>
+        </header>
+
+        <!-- Resumo em números -->
+        <div class="stat-grid" aria-label="Resumo da sua conta">
+          <div class="stat-card">
+            <span class="stat-value" id="statUpcoming">–</span>
+            <span class="stat-label">Próximos horários</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value" id="statVisits">–</span>
+            <span class="stat-label">Visitas realizadas</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value stat-value-sm" id="statFavorite">–</span>
+            <span class="stat-label">Serviço favorito</span>
+          </div>
+        </div>
+
+        <div class="account-grid">
+          <!-- Coluna: perfil -->
+          <div class="account-col">
+            <section class="account-card" aria-labelledby="profileTitle">
+              <h2 class="account-card-title" id="profileTitle">Meus dados</h2>
+              <div class="profile-header">
+                <span class="pro-avatar profile-avatar" id="profileAvatar" aria-hidden="true">A</span>
+                <div>
+                  <strong id="profileName"></strong>
+                  <span class="profile-since" id="profileSince"></span>
+                </div>
+              </div>
+              <dl class="profile-list">
+                <div>
+                  <dt><svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg> E-mail</dt>
+                  <dd id="profileEmail"></dd>
+                </div>
+                <div>
+                  <dt><svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.13.96.36 1.9.7 2.8a2 2 0 0 1-.45 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.45c.9.34 1.84.57 2.8.7A2 2 0 0 1 22 16.9z"/></svg> WhatsApp</dt>
+                  <dd id="profilePhone"></dd>
+                </div>
+              </dl>
+              <button type="button" class="btn btn-ghost btn-sm" id="btnToggleEdit" aria-expanded="false" aria-controls="editForm">
+                <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.8 2.8 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                Editar dados
+              </button>
+
+              <form id="editForm" class="inline-form" novalidate hidden>
+                <div class="form-field">
+                  <label for="editName">Nome <span class="req" aria-hidden="true">*</span></label>
+                  <input type="text" id="editName" autocomplete="name" required minlength="3" />
+                </div>
+                <div class="form-field">
+                  <label for="editPhone">WhatsApp <span class="req" aria-hidden="true">*</span></label>
+                  <input type="tel" id="editPhone" autocomplete="tel" inputmode="numeric" required />
+                </div>
+                <p class="field-hint">O e-mail de acesso não pode ser alterado.</p>
+                <p class="field-error" id="editError" role="alert" hidden></p>
+                <div class="inline-form-actions">
+                  <button type="submit" class="btn btn-primary btn-sm" id="btnSaveProfile">
+                    <span class="btn-label">Salvar alterações</span>
+                    <span class="btn-spinner" aria-hidden="true"></span>
+                  </button>
+                  <button type="button" class="btn btn-ghost btn-sm" id="btnCancelEdit">Cancelar</button>
+                </div>
+              </form>
+            </section>
+
+            <section class="account-card" aria-labelledby="passwordTitle">
+              <h2 class="account-card-title" id="passwordTitle">Segurança</h2>
+              <p class="account-card-sub">Troque sua senha sempre que precisar. A senha atual é obrigatória.</p>
+              <button type="button" class="btn btn-ghost btn-sm" id="btnTogglePassword" aria-expanded="false" aria-controls="passwordForm">
+                <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                Alterar senha
+              </button>
+
+              <form id="passwordForm" class="inline-form" novalidate hidden>
+                <div class="form-field">
+                  <label for="pwCurrent">Senha atual <span class="req" aria-hidden="true">*</span></label>
+                  <div class="password-wrap">
+                    <input type="password" id="pwCurrent" autocomplete="current-password" required />
+                    <button type="button" class="password-toggle" data-toggle-password="pwCurrent" aria-label="Mostrar senha" aria-pressed="false">
+                      <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                  </div>
+                </div>
+                <div class="form-field">
+                  <label for="pwNew">Nova senha <span class="req" aria-hidden="true">*</span></label>
+                  <div class="password-wrap">
+                    <input type="password" id="pwNew" autocomplete="new-password" required minlength="6" />
+                    <button type="button" class="password-toggle" data-toggle-password="pwNew" aria-label="Mostrar senha" aria-pressed="false">
+                      <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </button>
+                  </div>
+                  <p class="field-hint">Mínimo de 6 caracteres.</p>
+                </div>
+                <div class="form-field">
+                  <label for="pwConfirm">Confirmar nova senha <span class="req" aria-hidden="true">*</span></label>
+                  <input type="password" id="pwConfirm" autocomplete="new-password" required minlength="6" />
+                </div>
+                <p class="field-error" id="passwordError" role="alert" hidden></p>
+                <div class="inline-form-actions">
+                  <button type="submit" class="btn btn-primary btn-sm" id="btnSavePassword">
+                    <span class="btn-label">Salvar nova senha</span>
+                    <span class="btn-spinner" aria-hidden="true"></span>
+                  </button>
+                  <button type="button" class="btn btn-ghost btn-sm" id="btnCancelPassword">Cancelar</button>
+                </div>
+              </form>
+            </section>
+          </div>
+
+          <!-- Coluna: agendamentos -->
+          <div class="account-col">
+            <section class="account-card" aria-labelledby="upcomingTitle">
+              <div class="account-card-head">
+                <h2 class="account-card-title" id="upcomingTitle">Próximos horários</h2>
+                <a href="index.html#agendar" class="btn btn-primary btn-sm">Agendar novo</a>
+              </div>
+              <div id="upcomingList" aria-live="polite"></div>
+            </section>
+
+            <section class="account-card" aria-labelledby="historyTitle">
+              <h2 class="account-card-title" id="historyTitle">Histórico de visitas</h2>
+              <div id="historyList"></div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer account-footer">
+    <div class="container footer-bottom">
+      <p>© 2026 Aline Dan — Salão de Beleza · <a href="index.html" class="footer-link">Voltar ao site</a></p>
+    </div>
+  </footer>
+
+  <script src="common.js?v=48"></script>
+  <script src="conta.js?v=48"></script>
+</body>
+</html>

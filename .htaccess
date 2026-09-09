@@ -1,0 +1,7 @@
+# Aline Dan · Evita cache agressivo do navegador durante o desenvolvimento.
+# Em produção, troque por uma política de cache com versionamento de arquivos.
+<IfModule mod_headers.c>
+  <FilesMatch "\.(html|css|js)$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </FilesMatch>
+</IfModule>

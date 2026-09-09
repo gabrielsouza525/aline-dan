@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Aline Dan Espaço Lounge — Salão de beleza em Araçatuba/SP: cabelo, unhas, cílios, sobrancelha e maquiagem. Agende seu horário online." />
+  <title>Aline Dan Espaço Lounge · Salão de Beleza em Araçatuba</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Great+Vibes&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=48" />
+</head>
+<body>
+  <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
+
+  <!-- ============ CABEÇALHO (sobre o hero) ============ -->
+  <header class="site-header" id="siteHeader">
+    <div class="container header-inner">
+      <button class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="mainNav" aria-label="Abrir menu">
+        <span class="menu-bars" aria-hidden="true"><span></span><span></span><span></span></span>
+        <span class="menu-word">Menu</span>
+      </button>
+
+      <a href="#inicio" class="brand" aria-label="Aline Dan — início">
+        <span class="brand-script">Aline Dan</span>
+        <span class="brand-sub">Espaço Lounge</span>
+      </a>
+
+      <div class="header-actions">
+        <div class="auth-area" id="authArea">
+          <a href="login.html" class="btn btn-ghost btn-sm">Entrar</a>
+        </div>
+        <a href="#agendar" class="btn btn-primary btn-sm">Agendar</a>
+      </div>
+    </div>
+
+    <nav class="main-nav" id="mainNav" aria-label="Navegação principal">
+      <div class="container nav-inner">
+        <div class="nav-cols">
+          <p class="nav-kicker">Explore</p>
+          <ul class="nav-links">
+            <li><a href="#servicos">Serviços</a></li>
+            <li><a href="#sobre">O salão</a></li>
+            <li><a href="#equipe">Equipe</a></li>
+            <li><a href="#depoimentos">Clientes</a></li>
+            <li><a href="#meus-agendamentos">Meus horários</a></li>
+            <li><a href="#contato">Contato</a></li>
+          </ul>
+        </div>
+
+        <div class="nav-aside">
+          <p class="nav-desc">Cabelo, coloração, unhas, cílios, sobrancelha e maquiagem — dez especialistas na Vila São Paulo, em Araçatuba.</p>
+          <a href="#agendar" class="btn btn-primary">Agendar horário</a>
+          <ul class="nav-mini">
+            <li><a href="https://instagram.com" target="_blank" rel="noopener">@alinedanespacolounge</a></li>
+            <li><a href="https://wa.me/5518996655263" target="_blank" rel="noopener">WhatsApp</a></li>
+            <li><a href="https://www.trinks.com/espaco-lounge-aline-dan" target="_blank" rel="noopener">Avaliações</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="container nav-bottom">
+        <p class="nav-kicker">Categorias</p>
+        <div class="nav-cats" id="navCats"><!-- preenchido via JS --></div>
+      </div>
+    </nav>
+  </header>
+
+  <main id="conteudo">
+    <!-- ============ HERO ============ -->
+    <section class="hero" id="inicio">
+      <!-- ==========================================================
+           FUNDO DO HERO
+           SUBSTITUIR POR FOTO: paisagem/ambiente do salão, horizontal,
+           mínimo 2000x1200px. Basta trocar a <svg> por:
+           <img class="hero-media" src="img/hero.jpg" alt="" />
+           ========================================================== -->
+      <div class="hero-bg" aria-hidden="true">
+        <svg class="hero-media" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="hgFundo" x1="0" y1="0" x2="0.35" y2="1">
+              <stop offset="0%" stop-color="#4A1339"/>
+              <stop offset="55%" stop-color="#360D29"/>
+              <stop offset="100%" stop-color="#240818"/>
+            </linearGradient>
+            <radialGradient id="hgLuz" cx="0.5" cy="0.34" r="0.62">
+              <stop offset="0%" stop-color="#D9A8C2" stop-opacity="0.30"/>
+              <stop offset="60%" stop-color="#4A1339" stop-opacity="0.14"/>
+              <stop offset="100%" stop-color="#240818" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+          <rect width="1600" height="900" fill="url(#hgFundo)"/>
+          <rect width="1600" height="900" fill="url(#hgLuz)"/>
+          <g stroke="#F6D9E5" stroke-width="1" opacity="0.13" fill="none">
+            <path d="M800 -40 C 690 120, 640 300, 660 520 C 672 690, 700 810, 706 940"/>
+            <path d="M800 -40 C 910 120, 960 300, 940 520 C 928 690, 900 810, 894 940"/>
+            <path d="M800 -20 C 730 140, 700 320, 716 540 C 726 700, 748 820, 752 940"/>
+            <path d="M800 -20 C 870 140, 900 320, 884 540 C 874 700, 852 820, 848 940"/>
+            <path d="M800 20 C 770 170, 756 340, 768 560"/>
+            <path d="M800 20 C 830 170, 844 340, 832 560"/>
+          </g>
+          <g stroke="#F6D9E5" stroke-width="0.8" opacity="0.10" fill="none">
+            <circle cx="800" cy="250" r="180"/><circle cx="800" cy="250" r="270"/><circle cx="800" cy="250" r="370"/>
+          </g>
+        </svg>
+        <span class="hero-scrim"></span>
+      </div>
+
+      <div class="hero-inner">
+        <p class="hero-kicker">Araçatuba · SP &nbsp;·&nbsp; 10 especialistas</p>
+        <h1>Beleza feita com <em>cuidado</em>,<br />do fio à unha.</h1>
+        <p class="hero-services">
+          <span>Cabelo</span><span>Unhas</span><span>Cílios</span><span>Sobrancelha</span><span>Maquiagem</span>
+        </p>
+        <div class="hero-ctas">
+          <a href="#agendar" class="btn btn-pill-solid">Agendar online</a>
+          <a href="#serviços" class="btn btn-pill-outline">Ver serviços</a>
+        </div>
+        <p class="hero-slot">
+          <span class="dot" aria-hidden="true"></span>
+          Próximo horário livre: <span id="nextSlotHint">consultando…</span>
+        </p>
+      </div>
+
+      <a class="hero-follow" href="https://instagram.com" target="_blank" rel="noopener">Siga @alinedanespacolounge</a>
+    </section>
+
+    <!-- Faixa corrida -->
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee-track">
+        <span>Cabelo</span><span>Coloração</span><span>Mechas</span><span>Unhas</span><span>Cílios</span><span>Sobrancelha</span><span>Maquiagem</span><span>Penteados</span>
+        <span>Cabelo</span><span>Coloração</span><span>Mechas</span><span>Unhas</span><span>Cílios</span><span>Sobrancelha</span><span>Maquiagem</span><span>Penteados</span>
+      </div>
+    </div>
+
+    <!-- ============ 01 · SERVIÇOS ============ -->
+    <section class="section" id="servicos">
+      <div class="container">
+        <header class="section-head reveal">
+          <p class="eyebrow" data-num="01">Serviços</p>
+          <h2>Tudo o que fazemos <em>por você</em></h2>
+          <p class="section-sub">Preço e duração de cada atendimento, sempre à vista. Escolha a categoria e agende direto por aqui.</p>
+        </header>
+        <div class="cat-chips" id="servicesCats" role="group" aria-label="Categorias de serviços"></div>
+        <div class="services-grid" id="servicesGrid"><!-- preenchido via JS --></div>
+        <div class="services-more" id="servicesMore"></div>
+      </div>
+    </section>
+
+    <!-- ============ 02 · O SALÃO ============ -->
+    <section class="section section-alt" id="sobre">
+      <div class="container about-grid">
+        <div class="about-visual reveal">
+          <!-- SUBSTITUIR POR FOTO: interior do salão ou detalhe da recepção (3:4) -->
+          <div class="about-art">
+            <svg viewBox="0 0 300 400" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustração decorativa do ambiente">
+              <rect width="300" height="400" fill="#FBEAF1"/>
+              <g stroke="#360D29" stroke-width="0.9" opacity="0.5" fill="none">
+                <rect x="55" y="70" width="190" height="180" rx="95"/>
+                <path d="M55 165 H245"/>
+                <path d="M150 70 V250"/>
+              </g>
+              <g stroke="#4A1339" stroke-width="0.7" opacity="0.45" fill="none">
+                <path d="M40 300 H260"/><path d="M40 316 H210"/><path d="M40 332 H235"/>
+              </g>
+              <circle cx="150" cy="165" r="16" fill="#360D29" opacity="0.14"/>
+            </svg>
+          </div>
+        </div>
+        <div class="about-copy reveal">
+          <p class="eyebrow" data-num="02">O salão</p>
+          <h2>Um endereço, <em>todos</em> os cuidados</h2>
+          <p>O Espaço Lounge nasceu do sonho da Aline de reunir, em um só lugar, tudo o que uma cliente precisa para se sentir bem — com o cuidado de quem conhece cada uma pelo nome. Hoje somos dez especialistas entre cabeleireiros e manicures, na Vila São Paulo.</p>
+          <ul class="feature-list">
+            <li>
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+              <div><strong>Produtos profissionais</strong><span>Marcas reconhecidas em coloração, tratamento e finalização.</span></div>
+            </li>
+            <li>
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <div><strong>Pontualidade de verdade</strong><span>Agendamento online garante seu horário, sem espera na recepção.</span></div>
+            </li>
+            <li>
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z"/></svg>
+              <div><strong>Atendimento acolhedor</strong><span>Wi-Fi, conforto e atendimento para adultos e crianças.</span></div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 03 · EQUIPE ============ -->
+    <section class="section" id="equipe">
+      <div class="container">
+        <header class="section-head reveal">
+          <p class="eyebrow" data-num="03">Equipe</p>
+          <h2>Quem cuida <em>de você</em></h2>
+          <p class="section-sub">Dez especialistas entre cabeleireiros e manicures, prontos para receber você.</p>
+        </header>
+        <div class="team-grid" id="teamGrid"><!-- preenchido via JS --></div>
+      </div>
+    </section>
+
+    <!-- ============ 04 · AGENDAMENTO ============ -->
+    <section class="section section-booking" id="agendar">
+      <div class="container">
+        <header class="section-head is-centered reveal">
+          <p class="eyebrow" data-num="04">Agendamento online</p>
+          <h2>Reserve seu horário</h2>
+          <p class="section-sub">Quatro passos e pronto — sem telefone, sem espera.</p>
+        </header>
+
+        <div class="booking-card reveal">
+          <ol class="steps" id="stepsIndicator" aria-label="Progresso do agendamento">
+            <li class="step-item is-current" data-step-dot="1"><span class="step-dot">1</span><span class="step-label">Serviço</span></li>
+            <li class="step-item" data-step-dot="2"><span class="step-dot">2</span><span class="step-label">Profissional</span></li>
+            <li class="step-item" data-step-dot="3"><span class="step-dot">3</span><span class="step-label">Data e hora</span></li>
+            <li class="step-item" data-step-dot="4"><span class="step-dot">4</span><span class="step-label">Seus dados</span></li>
+          </ol>
+          <p class="steps-count" id="stepsCount">Etapa 1 de 4</p>
+
+          <form id="bookingForm" novalidate>
+            <!-- Etapa 1 -->
+            <fieldset class="step-panel" data-step="1">
+              <legend class="panel-title">Qual serviço você deseja?</legend>
+              <div class="cat-chips" id="bookingCats" role="group" aria-label="Categorias de serviços"></div>
+              <div class="carousel">
+                <button type="button" class="carousel-btn" data-carousel-prev="serviceOptions" aria-label="Serviços anteriores">
+                  <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+                </button>
+                <div class="carousel-track" id="serviceOptions" role="radiogroup" aria-label="Serviços disponíveis"></div>
+                <button type="button" class="carousel-btn" data-carousel-next="serviceOptions" aria-label="Próximos serviços">
+                  <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+                </button>
+              </div>
+              <p class="svc-selected-hint" id="svcSelectedHint" aria-live="polite" hidden></p>
+              <p class="field-error" id="errService" role="alert" hidden>Escolha um serviço para continuar.</p>
+            </fieldset>
+
+            <!-- Etapa 2 -->
+            <fieldset class="step-panel" data-step="2" hidden>
+              <legend class="panel-title">Com quem você quer ser atendida?</legend>
+              <div class="carousel">
+                <button type="button" class="carousel-btn" data-carousel-prev="proOptions" aria-label="Profissionais anteriores">
+                  <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+                </button>
+                <div class="carousel-track" id="proOptions" role="radiogroup" aria-label="Profissionais disponíveis"></div>
+                <button type="button" class="carousel-btn" data-carousel-next="proOptions" aria-label="Próximas profissionais">
+                  <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+                </button>
+              </div>
+              <p class="field-error" id="errPro" role="alert" hidden>Escolha uma profissional para continuar.</p>
+            </fieldset>
+
+            <!-- Etapa 3 -->
+            <fieldset class="step-panel" data-step="3" hidden>
+              <legend class="panel-title">Escolha o melhor dia e horário</legend>
+              <p class="panel-hint">Atendemos de terça a sábado, das 08h às 18h.</p>
+              <div class="date-scroller" id="dateScroller" role="radiogroup" aria-label="Datas disponíveis"></div>
+              <h3 class="slots-title">Horários disponíveis <span id="slotsDateLabel"></span></h3>
+              <div class="slots-box" id="slotsGrid" role="radiogroup" aria-label="Horários disponíveis"></div>
+              <p class="slots-legend">
+                <span class="legend-item"><span class="legend-swatch legend-free"></span>Livre</span>
+                <span class="legend-item"><span class="legend-swatch legend-taken"></span>Ocupado</span>
+              </p>
+              <p class="field-error" id="errSlot" role="alert" hidden>Escolha um dia e um horário para continuar.</p>
+            </fieldset>
+
+            <!-- Etapa 4 -->
+            <fieldset class="step-panel" data-step="4" hidden>
+              <legend class="panel-title">Confirme seus dados</legend>
+              <div class="summary-box" id="summaryBox" aria-live="polite"></div>
+              <div class="form-fields">
+                <div class="form-field">
+                  <label for="clientName">Seu nome <span class="req" aria-hidden="true">*</span></label>
+                  <input type="text" id="clientName" name="clientName" autocomplete="name" required minlength="3" placeholder="Ex.: Ana Paula Souza" />
+                  <p class="field-error" id="errName" role="alert" hidden>Informe seu nome completo (mínimo 3 letras).</p>
+                </div>
+                <div class="form-field">
+                  <label for="clientPhone">WhatsApp <span class="req" aria-hidden="true">*</span></label>
+                  <input type="tel" id="clientPhone" name="clientPhone" autocomplete="tel" inputmode="numeric" required placeholder="(18) 99999-9999" />
+                  <p class="field-hint">Usamos apenas para confirmar ou avisar sobre o seu horário.</p>
+                  <p class="field-error" id="errPhone" role="alert" hidden>Informe um telefone válido com DDD.</p>
+                </div>
+              </div>
+            </fieldset>
+
+            <div class="booking-nav">
+              <button type="button" class="btn btn-ghost" id="btnBack" hidden>Voltar</button>
+              <button type="button" class="btn btn-primary" id="btnNext">Continuar</button>
+              <button type="submit" class="btn btn-primary" id="btnSubmit" hidden>
+                <span class="btn-label">Confirmar agendamento</span>
+                <span class="btn-spinner" aria-hidden="true"></span>
+              </button>
+            </div>
+          </form>
+
+          <!-- Sucesso -->
+          <div class="booking-success" id="bookingSuccess" hidden tabindex="-1">
+            <div class="success-icon" aria-hidden="true">
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            </div>
+            <h3>Horário confirmado</h3>
+            <p>Guardamos os detalhes aqui embaixo. Até lá!</p>
+            <div class="summary-box" id="successSummary"></div>
+            <div class="success-actions">
+              <a href="#" class="btn btn-whatsapp" id="btnWhatsApp" target="_blank" rel="noopener">Avisar no WhatsApp</a>
+              <a href="minha-conta.html" class="btn btn-ghost">Meus horários</a>
+              <button type="button" class="btn btn-ghost" id="btnNewBooking">Novo agendamento</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 05 · DEPOIMENTOS ============ -->
+    <section class="section section-alt" id="depoimentos">
+      <div class="container">
+        <header class="section-head is-centered reveal">
+          <p class="eyebrow" data-num="05">Clientes</p>
+          <h2>Quem visita, <em>volta</em></h2>
+        </header>
+        <!-- ================================================================
+             A primeira avaliação é REAL (Trinks, 22/11/2025).
+             As marcadas com data-demo="1" são EXEMPLOS para preencher o
+             layout — SUBSTITUA por avaliações verdadeiras antes de publicar.
+             Atalho: rode removerDepoimentosDemo() no console.
+             ================================================================ -->
+        <div class="testimonials-grid">
+          <figure class="testimonial reveal">
+            <div class="stars" role="img" aria-label="Avaliação: 5 de 5 estrelas"><svg class="icon icon-sm" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8L12 2z"/></svg><svg class="icon icon-sm" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8L12 2z"/></svg><svg class="icon icon-sm" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8L12 2z"/></svg><svg class="icon icon-sm" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8L12 2z"/></svg><svg class="icon icon-sm" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8L12 2z"/></svg></div>
+            <blockquote>“Muito boa e caprichosa”</blockquote>
+            <figcaption><strong>Adriana</strong><span>Avaliação no Trinks · 22/11/2025</span></figcaption>
+          </figure>
+          <figure class="testimonial reveal" data-demo="1">
+            <div class="stars" role="img" aria-label="Avaliação: 5 de 5 estrelas"><svg class="icon icon-sm" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8L12 2z"/></svg><svg class="icon icon-sm" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8L12 2z"/></svg><svg class="icon icon-sm" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8L12 2z"/></svg><svg class="icon icon-sm" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8L12 2z"/></svg><svg class="icon icon-sm" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8L12 2z"/></svg></div>
+            <blockquote>“Fiz mechas com a Aline e ficou exatamente o loiro que eu queria, sem estragar o fio.”</blockquote>
+            <figcaption><strong>Mariana S.</strong><span>Mechas & Luzes</span></figcaption>
+          </figure>
+          <figure class="testimonial reveal" data-demo="1">
+            <div class="stars" role="img" aria-label="Avaliação: 5 de 5 estrelas"><svg class="icon icon-sm" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8L12 2z"/></svg><svg class="icon icon-sm" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8L12 2z"/></svg><svg class="icon icon-sm" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8L12 2z"/></svg><svg class="icon icon-sm" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8L12 2z"/></svg><svg class="icon icon-sm" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.2 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8L12 2z"/></svg></div>
+            <blockquote>“Marco pelo site na hora do almoço e nunca esperei. A manicure caprichou tanto que já voltei três vezes.”</blockquote>
+            <figcaption><strong>Camila R.</strong><span>Manicure e Pedicure</span></figcaption>
+          </figure>
+        </div>
+        <p class="reviews-cta reveal">
+          <a href="https://www.trinks.com/espaco-lounge-aline-dan" target="_blank" rel="noopener" class="link-underline">Ver as avaliações no Trinks</a>
+        </p>
+      </div>
+    </section>
+
+    <!-- ============ 06 · MEUS HORÁRIOS ============ -->
+    <section class="section" id="meus-agendamentos">
+      <div class="container container-narrow">
+        <header class="section-head reveal">
+          <p class="eyebrow" data-num="06">Sua agenda</p>
+          <h2>Meus horários</h2>
+        </header>
+        <div id="myBookings" class="my-bookings" aria-live="polite"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ RODAPÉ ============ -->
+  <footer class="site-footer" id="contato">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <span class="brand-script">Aline Dan</span>
+        <p>Beleza, cuidado e acolhimento em cada detalhe.</p>
+        <div class="social-links">
+          <a href="https://instagram.com" target="_blank" rel="noopener" aria-label="Instagram do salão">
+            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><line x1="17.5" y1="6.5" x2="17.5" y2="6.5"/></svg>
+          </a>
+          <a href="https://wa.me/5518996655263" target="_blank" rel="noopener" aria-label="WhatsApp do salão">
+            <svg class="icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.5 14.4c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.65.07a8.2 8.2 0 0 1-2.4-1.49 9 9 0 0 1-1.66-2.07c-.17-.3-.02-.46.13-.61.14-.13.3-.35.45-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.67-1.62-.92-2.22-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.8.37-.27.3-1.04 1.02-1.04 2.5 0 1.47 1.07 2.89 1.22 3.09.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.7.63.71.22 1.36.19 1.87.11.57-.08 1.76-.72 2-1.41.25-.7.25-1.29.18-1.41-.08-.13-.28-.2-.58-.35zM12.05 21.5h-.01a9.4 9.4 0 0 1-4.8-1.32l-.34-.2-3.56.93.95-3.47-.22-.36a9.42 9.42 0 1 1 8 4.42zM12.04 1A11.4 11.4 0 0 0 2.2 18.1L.6 24l6.03-1.58A11.4 11.4 0 1 0 12.05 1z"/></svg>
+          </a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h3>Onde estamos</h3>
+        <address>
+          <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Rua Professora Chiquita Fernandes, 366<br/>Vila São Paulo · Araçatuba/SP<br/>CEP 16015-470
+        </address>
+        <p>
+          <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.13.96.36 1.9.7 2.8a2 2 0 0 1-.45 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.45c.9.34 1.84.57 2.8.7A2 2 0 0 1 22 16.9z"/></svg>
+          (18) 99665-5263
+        </p>
+      </div>
+      <div class="footer-col">
+        <h3>Horário</h3>
+        <dl class="hours">
+          <div><dt>Terça a sábado</dt><dd>08h — 18h</dd></div>
+          <div><dt>Domingo e segunda</dt><dd>Fechado</dd></div>
+        </dl>
+        <p class="footer-payments">Dinheiro, PIX, crédito e débito</p>
+      </div>
+    </div>
+    <div class="container footer-map-wrap">
+      <iframe class="footer-map" title="Mapa: como chegar ao salão Aline Dan Espaço Lounge"
+        src="https://www.google.com/maps?q=Rua%20Professora%20Chiquita%20Fernandes%2C%20366%2C%20Vila%20S%C3%A3o%20Paulo%2C%20Ara%C3%A7atuba%2C%20SP&output=embed"
+        loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+    </div>
+    <div class="container footer-bottom">
+      <p>© 2026 Aline Dan Espaço Lounge · Araçatuba/SP</p>
+    </div>
+  </footer>
+
+  <script src="common.js?v=48"></script>
+  <script src="app.js?v=48"></script>
+</body>
+</html>

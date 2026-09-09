@@ -35,6 +35,8 @@ if ($method === 'GET') {
     foreach ($rows as &$r) {
         $r['price'] = (float) $r['price'];
         $r['duration_min'] = (int) $r['duration_min'];
+        // a tela não recalcula o prazo: quem decide é o servidor
+        $r['can_change'] = client_can_change($r['date'], $r['time']);
     }
     json_response(200, ['bookings' => $rows]);
 }
@@ -128,10 +130,12 @@ if ($method === 'PUT') {
         json_response(404, ['error' => 'Agendamento não encontrado.']);
     }
 
-    // Não se remarca o que já passou
-    if ($booking['date'] < date('Y-m-d')
-        || ($booking['date'] === date('Y-m-d') && $booking['time'] < date('H:i'))) {
-        json_response(422, ['error' => 'Este horário já passou e não pode ser remarcado.']);
+    // A cliente remarca até 4h antes; a administração, sempre.
+    if (!$isAdmin && !client_can_change($booking['date'], $booking['time'])) {
+        $passou = minutes_until($booking['date'], $booking['time']) < 0;
+        json_response(422, ['error' => $passou
+            ? 'Este horário já passou e não pode ser remarcado.'
+            : change_deadline_message('remarcado')]);
     }
 
     $slotError = validate_slot($date, $time, $isAdmin);
@@ -192,6 +196,7 @@ if ($method === 'DELETE') {
 
     $stmt = $pdo->prepare(
         'SELECT b.id, b.user_id, DATE_FORMAT(b.booking_date, "%d/%m/%Y") AS d,
+                DATE_FORMAT(b.booking_date, "%Y-%m-%d") AS date_iso,
                 TIME_FORMAT(b.booking_time, "%H:%i") AS t,
                 COALESCE(s.name, b.service_id) AS service_name,
                 COALESCE(u.name, b.guest_name) AS client_name
@@ -206,6 +211,14 @@ if ($method === 'DELETE') {
     $isAdmin = ($user['role'] ?? 'client') === 'admin';
     if ($booking === false || (!$isAdmin && (int) $booking['user_id'] !== (int) $user['id'])) {
         json_response(404, ['error' => 'Agendamento não encontrado.']);
+    }
+
+    // A cliente cancela até 4h antes; a administração, sempre.
+    if (!$isAdmin && !client_can_change($booking['date_iso'], $booking['t'])) {
+        $passou = minutes_until($booking['date_iso'], $booking['t']) < 0;
+        json_response(422, ['error' => $passou
+            ? 'Este horário já passou.'
+            : change_deadline_message('cancelado')]);
     }
 
     $stmt = $pdo->prepare('DELETE FROM bookings WHERE id = ?');

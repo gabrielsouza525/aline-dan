@@ -48,6 +48,12 @@ const CLOSING_MIN = 18 * 60;      // salão fecha às 18h
 const MAX_DAYS_AHEAD = 60;
 const MIN_ADVANCE_MINUTES = 30;
 
+// A cliente cancela ou remarca sozinha até 4h antes. Depois disso a
+// profissional já está com a agenda fechada e o horário dificilmente seria
+// reocupado — daí em diante é só falando com o salão. A administração não
+// tem esse limite.
+const CANCEL_LIMIT_MINUTES = 4 * 60;
+
 const ALLOWED_DURATIONS = [10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 225, 230, 240, 250, 260, 270, 280, 290, 300];
 const SERVICE_ICONS = ['scissors', 'wind', 'palette', 'sparkles', 'droplet', 'crown', 'star', 'clock', 'eye', 'pencil'];
 
@@ -132,6 +138,27 @@ function validate_slot(string $date, string $time, bool $relaxed = false): ?stri
         }
     }
     return null;
+}
+
+/** Minutos que faltam para o agendamento começar. Negativo se já passou. */
+function minutes_until(string $date, string $time): int
+{
+    $inicio = new DateTime($date . ' ' . $time);
+    return (int) round(($inicio->getTimestamp() - time()) / 60);
+}
+
+/** A cliente ainda pode cancelar ou remarcar sozinha? */
+function client_can_change(string $date, string $time): bool
+{
+    return minutes_until($date, $time) >= CANCEL_LIMIT_MINUTES;
+}
+
+/** Aviso mostrado quando o prazo já passou. */
+function change_deadline_message(string $verbo): string
+{
+    return 'Faltam menos de ' . (CANCEL_LIMIT_MINUTES / 60) . ' horas para o seu horário, '
+        . 'então ele não pode mais ser ' . $verbo . ' pelo site. '
+        . 'Fale com o salão pelo WhatsApp (18) 99665-5263 que a gente dá um jeito.';
 }
 
 // ---------- Motor de disponibilidade ----------

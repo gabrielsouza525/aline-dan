@@ -6,13 +6,17 @@
   "use strict";
   const {
     SERVICES, PROFESSIONALS, MONTHS_SHORT,
-    TIME_SLOTS, CLOSED_WEEKDAYS, WEEKDAYS_SHORT, slotsHTML,
+    TIME_SLOTS, CLOSED_WEEKDAYS, WEEKDAYS_SHORT, slotsHTML, SALON_WHATSAPP,
     api, loadCatalog, svgIcon, escapeHTML, brl, fromISODate, formatDateLong, toISODate,
     showToast, setLoading, maskPhone, attachPhoneMask, setupPasswordToggles,
   } = window.AD;
   const $ = (sel) => document.querySelector(sel);
 
   const state = { user: null, bookings: [] };
+
+  // Igual ao CANCEL_LIMIT_MINUTES do servidor (api/data.php). Aqui s\u00f3 para o
+  // texto: quem decide se ainda d\u00e1 para mexer \u00e9 o campo can_change da API.
+  const CANCEL_LIMIT_HOURS = 4;
 
   // ---------- Perfil ----------
   function renderProfile() {
@@ -75,14 +79,21 @@
           "<span>" + formatDateLong(b.date) + " · com " + pro.name + " · " + brl(svc.price) + "</span>" +
         "</div>" +
         (withCancel
-          ? '<div class="bi-actions">' +
-              '<button type="button" class="btn-reschedule" data-reschedule="' + b.id + '">' +
-                svgIcon("calendar", "icon icon-sm") + "Remarcar</button>" +
-              '<button type="button" class="btn-cancel" data-cancel="' + b.id + '">Cancelar</button>' +
-            "</div>"
+          ? (b.can_change === false
+              // Passou o prazo: em vez de um bot\u00e3o que o servidor vai recusar,
+              // o caminho que resolve de verdade \u2014 falar com o sal\u00e3o.
+              ? '<div class="bi-locked">' + svgIcon("clock", "icon icon-sm") +
+                  "<span>Faltam menos de " + CANCEL_LIMIT_HOURS + "h. Para cancelar ou remarcar, " +
+                  '<a href="https://wa.me/' + SALON_WHATSAPP + '" target="_blank" rel="noopener">fale com o sal\u00e3o</a>.</span>' +
+                "</div>"
+              : '<div class="bi-actions">' +
+                  '<button type="button" class="btn-reschedule" data-reschedule="' + b.id + '">' +
+                    svgIcon("calendar", "icon icon-sm") + "Remarcar</button>" +
+                  '<button type="button" class="btn-cancel" data-cancel="' + b.id + '">Cancelar</button>' +
+                "</div>")
           : '<span class="bi-done">' + svgIcon("check", "icon icon-sm") + " Realizado</span>") +
       "</div>" +
-      (withCancel ? '<div class="reschedule-panel" id="rs-' + b.id + '" hidden></div>' : "")
+      (withCancel && b.can_change !== false ? '<div class="reschedule-panel" id="rs-' + b.id + '" hidden></div>' : "")
     );
   }
 
@@ -262,6 +273,7 @@
     const btn = ev.target.closest("[data-cancel]");
     if (!btn) return;
     if (!window.confirm("Cancelar este agendamento?")) return;
+
     btn.disabled = true;
     const res = await api.cancelBooking(btn.dataset.cancel);
     if (!res.ok) {

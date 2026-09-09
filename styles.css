@@ -994,6 +994,20 @@ body.menu-open .site-header .btn-logout { color: var(--color-text-muted); }
 .bi-info strong { display: block; font-family: var(--font-display); font-size: 1.25rem; font-weight: 500; color: var(--color-foreground); }
 .bi-info span { font-size: 0.86rem; color: var(--color-text-muted); }
 .bi-actions { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+/* Depois do prazo de 4h: aviso no lugar dos botões */
+.bi-locked {
+  display: flex; align-items: flex-start; gap: var(--space-2);
+  max-width: 260px; font-size: 0.78rem; line-height: 1.5; color: var(--color-text-muted);
+}
+.bi-locked .icon { flex: none; margin-top: 2px; }
+.bi-locked a { color: var(--vinho); text-decoration: underline; text-underline-offset: 2px; }
+.card-note {
+  margin: var(--space-4) 0 0; padding-top: var(--space-4);
+  border-top: var(--hairline); font-size: 0.8rem; line-height: 1.6; color: var(--color-text-muted);
+}
+.booking-policy {
+  margin: var(--space-5) 0 0; font-size: 0.8rem; line-height: 1.6; color: var(--color-text-muted);
+}
 .bi-done {
   display: inline-flex; align-items: center; gap: var(--space-2);
   font-size: 0.64rem; letter-spacing: 0.16em; text-transform: uppercase;

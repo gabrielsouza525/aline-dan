@@ -83,6 +83,9 @@ UTC numa hospedagem) e a agenda inteira sai errada.
 
 ## Ainda falta
 
-- Trocar os SVGs de espaço reservado pelas fotos reais (hero, salão e as 10 profissionais).
+- Fotos das 10 profissionais para a seção Equipe (3:4). Enquanto não chegarem, os
+  cartões mostram as iniciais — uma foto só, no meio de nove iniciais, ficaria pior
+  que nenhuma. O hero (`img/fachada.jpg`) e a seção O salão (`img/aline.jpg`) já
+  usam foto de verdade.
 - Substituir os 5 depoimentos de demonstração, marcados com `data-demo="1"` no
   `index.html`, por avaliações verdadeiras antes de publicar.

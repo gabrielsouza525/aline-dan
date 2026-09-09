@@ -11,6 +11,12 @@
  */
 declare(strict_types=1);
 
+// Fuso do salão. Sem isto o PHP usa o fuso do servidor — numa hospedagem
+// quase sempre UTC — e a agenda inteira sai errada: “hoje” vira outro dia,
+// e horários ainda válidos passam a ser recusados por “já passou”.
+const SALON_TIMEZONE = 'America/Sao_Paulo';
+date_default_timezone_set(SALON_TIMEZONE);
+
 const DB_HOST = '127.0.0.1';
 const DB_NAME = 'aline_dan';
 const DB_USER = 'root';
@@ -19,15 +25,28 @@ const DB_PASS = '';
 // Endereço público do site (usado nos links de e-mail)
 const BASE_URL = 'http://localhost/aline-dan/';
 
-// E-mails
-const ADMIN_EMAIL    = 'aline@alinedan.com'; // quem recebe avisos de agendamento
-const MAIL_MODE      = 'file';               // 'file' = salva em storage/outbox | 'smtp' = envia de verdade
-const MAIL_FROM      = 'contato@alinedan.com';
+// ---------- E-mails ----------
+// Com MAIL_MODE em 'file' nada é enviado: cada mensagem vira um .html em
+// storage/outbox, para conferir em desenvolvimento. Preencha o SMTP abaixo e
+// troque para 'smtp' quando o site for ao ar — sem isso a recuperação de senha
+// não funciona, porque o link de redefinição nunca chega à cliente.
+const MAIL_MODE      = 'file';
+const ADMIN_EMAIL    = 'aline@alinedan.com';          // quem recebe os avisos de agendamento
+const MAIL_FROM      = 'contato@alinedan.com';        // use o MESMO endereço do SMTP_USER
 const MAIL_FROM_NAME = 'Aline Dan · Salão de Beleza';
-const SMTP_HOST      = '';                   // ex.: smtp.gmail.com (com senha de app)
-const SMTP_PORT      = 465;
-const SMTP_USER      = '';
-const SMTP_PASS      = '';
+
+// Servidor de saída.
+//   Gmail: smtp.gmail.com, porta 465, segurança 'ssl', e uma SENHA DE APP
+//     (myaccount.google.com > Segurança > Verificação em duas etapas > Senhas de
+//     app). A senha normal da conta é recusada.
+//   Hospedagem própria: costuma ser mail.seudominio.com.br na porta 587 com 'tls'.
+// Teste antes de depender disso:  php setup/testar_email.php seu@email.com
+const SMTP_HOST     = '';
+const SMTP_PORT     = 465;
+const SMTP_SECURITY = 'ssl';                          // 'ssl' na 465 · 'tls' na 587
+const SMTP_USER     = '';
+const SMTP_PASS     = '';
+const SMTP_TIMEOUT  = 15;                             // segundos de espera pelo servidor
 
 function db(): PDO
 {
@@ -43,6 +62,9 @@ function db(): PDO
                 PDO::ATTR_EMULATE_PREPARES   => false,
             ]
         );
+        // O MySQL tem fuso próprio: alinha com o do PHP para NOW() e CURDATE()
+        // baterem com o que o site calcula.
+        $pdo->exec("SET time_zone = '" . (new DateTime())->format('P') . "'");
     }
     return $pdo;
 }

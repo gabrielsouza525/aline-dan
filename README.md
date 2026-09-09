@@ -35,10 +35,24 @@ Precisa do **XAMPP** (Apache + MariaDB + PHP 8).
    No XAMPP padrão (root sem senha) já funciona como está.
 4. Abra `http://localhost/aline-dan/`.
 
-Os e-mails (confirmação de cadastro, aviso de agendamento, lembrete) saem em modo
-`file` por padrão: em vez de enviar, ficam salvos em `storage/outbox` para você
-conferir. Para enviar de verdade, preencha os dados de SMTP no `config.php` e
-troque `MAIL_MODE` para `'smtp'`.
+Os e-mails (confirmação de cadastro, aviso de agendamento, lembrete, redefinição
+de senha) saem em modo `file` por padrão: em vez de enviar, ficam salvos em
+`storage/outbox` para você conferir. Para enviar de verdade, preencha os dados de
+SMTP no `config.php` e troque `MAIL_MODE` para `'smtp'`.
+
+Antes de depender disso, teste as credenciais pela linha de comando:
+
+```
+php setup/testar_email.php seu@email.com
+```
+
+Ele mostra a configuração em uso e, quando falha, a resposta exata do servidor —
+que é o que diz se o problema foi a senha, a porta ou o remetente. Todo envio fica
+registrado em `storage/mail.log`.
+
+O fuso do salão está fixado em `America/Sao_Paulo` no `config.php`, e a conexão
+com o MySQL é alinhada a ele. Sem isso o servidor usa o próprio fuso (quase sempre
+UTC numa hospedagem) e a agenda inteira sai errada.
 
 ## Organização
 

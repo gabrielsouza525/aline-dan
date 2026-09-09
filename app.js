@@ -108,9 +108,21 @@
 
   // ---------- Categorias de serviço (filtros) ----------
   const SERVICES_PAGE = 8;   // quantos serviços a vitrine mostra por vez
-  let servicesFilter = null; // vitrine
+  let servicesFilter = null; // vitrine: categoria escolhida
+  let servicesQuery = "";    // vitrine: texto da busca (vence a categoria)
   let servicesShown = SERVICES_PAGE;
   let bookingFilter = null;  // etapa 1 do agendamento
+
+  /** Sem acento e em minúsculas, para "coloracao" achar "Coloração". */
+  function semAcento(s) {
+    return String(s == null ? "" : s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  }
+
+  /** O serviço combina com a busca? Procura no nome, na descrição e na categoria. */
+  function servicoCombina(s, termos) {
+    const alvo = semAcento(s.name + " " + (s.desc || "") + " " + s.category);
+    return termos.every((t) => alvo.includes(t));
+  }
 
   function categoryChipsHTML(active) {
     return serviceCategories().map((c) =>
@@ -122,11 +134,29 @@
   function renderServicesSection(keepVisible) {
     const cats = serviceCategories();
     if (!servicesFilter || !cats.includes(servicesFilter)) servicesFilter = cats[0] || null;
-    $("#servicesCats").innerHTML = categoryChipsHTML(servicesFilter);
+
+    // Buscando, o texto manda: procura no catálogo inteiro e nenhuma
+    // categoria fica marcada, senão pareceria que a busca ignorou o resto.
+    const termos = semAcento(servicesQuery).split(/\s+/).filter(Boolean);
+    const buscando = termos.length > 0;
+    $("#servicesCats").innerHTML = categoryChipsHTML(buscando ? null : servicesFilter);
 
     const grid = $("#servicesGrid");
-    const lista = SERVICES.filter((s) => s.category === servicesFilter);
+    const lista = buscando
+      ? SERVICES.filter((s) => servicoCombina(s, termos))
+      : SERVICES.filter((s) => s.category === servicesFilter);
     const jaVisiveis = grid.querySelectorAll(".service-card").length;
+
+    if (buscando && lista.length === 0) {
+      grid.innerHTML =
+        '<p class="services-empty">Nenhum serviço encontrado para <strong>' +
+        escapeHTML(servicesQuery.trim()) + '</strong>.<br>' +
+        'Tente outra palavra ou <button type="button" class="link-inline" id="btnClearSearch">veja todos os serviços</button>.</p>';
+      const limpar = $("#btnClearSearch");
+      if (limpar) limpar.addEventListener("click", () => setServicesQuery(""));
+      renderServicesMore(0, buscando);
+      return;
+    }
 
     grid.innerHTML = lista.slice(0, servicesShown).map((s) => (
       '<article class="service-card reveal">' +
@@ -141,17 +171,34 @@
       "</article>"
     )).join("");
 
-    // Cards que já estavam na tela não reanimam; só os novos entram em cascata
+    // Cards que já estavam na tela não reanimam; só os novos entram em cascata.
+    // Durante a busca ninguém anima: a lista muda a cada tecla e a cascata
+    // deixaria a tela piscando.
     const cards = [...grid.children];
-    const manter = keepVisible ? Math.min(jaVisiveis, cards.length) : 0;
-    cards.slice(0, manter).forEach((el) => el.classList.add("is-visible"));
-    staggerReveal(cards.slice(manter));
+    if (buscando) {
+      cards.forEach((el) => el.classList.add("is-visible"));
+    } else {
+      const manter = keepVisible ? Math.min(jaVisiveis, cards.length) : 0;
+      cards.slice(0, manter).forEach((el) => el.classList.add("is-visible"));
+      staggerReveal(cards.slice(manter));
+    }
 
-    renderServicesMore(lista.length);
+    renderServicesMore(lista.length, buscando);
+  }
+
+  /** Troca o texto da busca e redesenha a vitrine. */
+  function setServicesQuery(texto) {
+    servicesQuery = texto;
+    servicesShown = SERVICES_PAGE;
+    const campo = $("#serviceSearch");
+    if (campo && campo.value !== texto) campo.value = texto;
+    const limpar = $("#serviceSearchClear");
+    if (limpar) limpar.hidden = texto.trim() === "";
+    renderServicesSection();
   }
 
   /** Botão "Mostrar mais / menos" abaixo da vitrine. */
-  function renderServicesMore(total) {
+  function renderServicesMore(total, buscando) {
     const box = $("#servicesMore");
     if (!box) return;
     const mostrando = Math.min(servicesShown, total);
@@ -167,8 +214,11 @@
       : '<button type="button" class="btn btn-ghost" id="btnLessServices">Mostrar menos' +
           svgIcon("chevron-up", "icon icon-sm") + "</button>";
 
+    const onde = buscando
+      ? 'para "' + escapeHTML(servicesQuery.trim()) + '"'
+      : "em " + escapeHTML(servicesFilter);
     box.innerHTML =
-      '<p class="services-count">Mostrando ' + mostrando + " de " + total + " serviços em " + escapeHTML(servicesFilter) + "</p>" + btn;
+      '<p class="services-count">Mostrando ' + mostrando + " de " + total + " serviços " + onde + "</p>" + btn;
 
     const mais = $("#btnMoreServices");
     if (mais) mais.addEventListener("click", () => {
@@ -776,9 +826,21 @@
       const chip = ev.target.closest("[data-cat]");
       if (!chip) return;
       servicesFilter = chip.dataset.cat;
-      servicesShown = SERVICES_PAGE;
-      renderServicesSection();
+      setServicesQuery("");   // escolher categoria desfaz a busca
     });
+
+    // Busca por serviço
+    const campoBusca = $("#serviceSearch");
+    if (campoBusca) {
+      campoBusca.addEventListener("input", () => setServicesQuery(campoBusca.value));
+      campoBusca.addEventListener("keydown", (ev) => {
+        if (ev.key === "Escape") { setServicesQuery(""); campoBusca.blur(); }
+      });
+      $("#serviceSearchClear").addEventListener("click", () => {
+        setServicesQuery("");
+        campoBusca.focus();
+      });
+    }
     $("#bookingCats").addEventListener("click", (ev) => {
       const chip = ev.target.closest("[data-cat]");
       if (!chip) return;

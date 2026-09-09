@@ -560,6 +560,44 @@ body.menu-open .site-header .btn-logout { color: var(--color-text-muted); }
 /* ============================================================
    SERVIÇOS
    ============================================================ */
+/* Busca por serviço, acima dos filtros de categoria */
+.services-search { margin-bottom: var(--space-4); }
+.search-field {
+  display: flex; align-items: center; gap: var(--space-3);
+  max-width: 440px; padding: 0 var(--space-4);
+  border: 1px solid var(--color-border); border-radius: var(--radius-full);
+  background: var(--color-surface);
+  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+.search-field:hover { border-color: var(--color-border-strong); }
+.search-field:focus-within { border-color: var(--vinho); box-shadow: 0 0 0 3px rgba(54, 13, 41, 0.08); }
+.search-icon { flex: none; color: var(--color-text-muted); }
+.search-field input {
+  flex: 1; min-width: 0; min-height: 46px; padding: 0;
+  border: 0; background: transparent; font: inherit; font-size: 0.95rem;
+  color: var(--color-foreground);
+}
+.search-field input::placeholder { color: var(--color-text-muted); }
+.search-field input:focus { outline: none; }
+/* o X nativo do type=search duplicaria o nosso botão */
+.search-field input::-webkit-search-cancel-button { display: none; }
+.search-clear {
+  flex: none; display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; padding: 0; border: 0; border-radius: var(--radius-full);
+  background: transparent; color: var(--color-text-muted); cursor: pointer;
+  transition: all var(--dur) var(--ease);
+}
+.search-clear:hover { background: var(--rosa-veu); color: var(--vinho); }
+.services-empty {
+  padding: var(--space-6) 0; margin: 0; color: var(--color-text-muted);
+  border-bottom: var(--hairline); line-height: 1.7;
+}
+.services-empty strong { color: var(--color-foreground); }
+.link-inline {
+  padding: 0; border: 0; background: none; font: inherit; color: var(--vinho);
+  text-decoration: underline; text-underline-offset: 3px; cursor: pointer;
+}
+
 .cat-chips { display: flex; gap: var(--space-2); flex-wrap: wrap; margin-bottom: var(--space-6); }
 .cat-chip {
   min-height: 40px; padding: var(--space-2) var(--space-4);

@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Great+Vibes&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=48" />
+  <link rel="stylesheet" href="styles.css?v=49" />
 </head>
 <body>
   <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
@@ -139,8 +139,18 @@
         <header class="section-head reveal">
           <p class="eyebrow" data-num="01">Serviços</p>
           <h2>Tudo o que fazemos <em>por você</em></h2>
-          <p class="section-sub">Preço e duração de cada atendimento, sempre à vista. Escolha a categoria e agende direto por aqui.</p>
+          <p class="section-sub">Preço e duração de cada atendimento, sempre à vista. Busque pelo nome ou escolha a categoria — e agende direto por aqui.</p>
         </header>
+        <div class="services-search reveal">
+          <label class="sr-only" for="serviceSearch">Buscar serviço</label>
+          <div class="search-field">
+            <svg class="icon icon-sm search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="search" id="serviceSearch" autocomplete="off" placeholder="Buscar serviço &mdash; corte, unhas…" />
+            <button type="button" class="search-clear" id="serviceSearchClear" aria-label="Limpar busca" hidden>
+              <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+        </div>
         <div class="cat-chips" id="servicesCats" role="group" aria-label="Categorias de serviços"></div>
         <div class="services-grid" id="servicesGrid"><!-- preenchido via JS --></div>
         <div class="services-more" id="servicesMore"></div>
@@ -406,7 +416,7 @@
     </div>
   </footer>
 
-  <script src="common.js?v=48"></script>
-  <script src="app.js?v=48"></script>
+  <script src="common.js?v=49"></script>
+  <script src="app.js?v=49"></script>
 </body>
 </html>

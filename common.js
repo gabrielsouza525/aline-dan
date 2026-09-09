@@ -140,6 +140,7 @@ window.AD = (function () {
     adminAgenda:        (date)      => apiRequest("admin_agenda.php?date=" + date),
     adminAgendaRange:   (from, to)  => apiRequest("admin_agenda.php?from=" + from + "&to=" + to),
     adminBooking:       (body)      => apiRequest("admin_booking.php", { method: "POST", body }),
+    setBookingStatus:   (id, status) => apiRequest("booking_status.php", { method: "POST", body: { id: id, status: status } }),
     adminReport:        (month)     => apiRequest("admin_report.php?month=" + month),
     blocks:             (date)      => apiRequest("blocks.php?date=" + date),
     createBlock:        (body)      => apiRequest("blocks.php", { method: "POST", body }),

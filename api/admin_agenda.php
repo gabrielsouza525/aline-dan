@@ -33,11 +33,14 @@ function fetch_bookings(PDO $pdo, string $from, string $to): array
                 COALESCE(u.name, b.guest_name)     AS client_name,
                 COALESCE(u.phone, b.guest_phone)   AS client_phone,
                 u.email                            AS client_email,
+                b.status,
                 (b.user_id IS NULL)                AS is_guest
            FROM bookings b
            LEFT JOIN users u ON u.id = b.user_id
            LEFT JOIN services s ON s.id = b.service_id
-          WHERE b.booking_date BETWEEN ? AND ? AND b.status = "confirmado"
+          -- falta continua na grade: foi um horário ocupado de verdade, e a
+          -- Aline precisa poder desfazer se marcar errado
+          WHERE b.booking_date BETWEEN ? AND ? AND b.status IN ("confirmado", "falta")
           ORDER BY b.booking_date, b.booking_time, b.pro_id'
     );
     $stmt->execute([$from, $to]);

@@ -84,15 +84,20 @@
 
   // ---------- Agenda: dia ----------
   function renderStats() {
-    $("#statBookings").textContent = String(state.bookings.length);
-    $("#statRevenue").textContent = brl(state.bookings.reduce((s, b) => s + (b.price || 0), 0));
+    // Quem não veio não entra na conta: não foi atendida nem pagou.
+    const feitos = state.bookings.filter((b) => b.status !== "falta");
+    const faltas = state.bookings.length - feitos.length;
+    $("#statBookings").textContent = String(feitos.length) + (faltas ? " (+" + faltas + " falta" + (faltas > 1 ? "s" : "") + ")" : "");
+    $("#statRevenue").textContent = brl(feitos.reduce((s, b) => s + (b.price || 0), 0));
     $("#statFree").textContent = state.closed ? "—" : freeHours(1);
   }
 
   /** Horas de equipe ainda livres: capacidade do dia menos a duração do que já está marcado. */
   function freeHours(dias) {
     const capacidade = (CLOSING_MIN - OPEN_MIN) * TEAM_SIZE * dias;
-    const usados = state.bookings.reduce((s, b) => s + (b.duration_min || 0), 0);
+    const usados = state.bookings
+      .filter((b) => b.status !== "falta")
+      .reduce((s, b) => s + (b.duration_min || 0), 0);
     return Math.round(Math.max(0, capacidade - usados) / 60) + " h";
   }
 
@@ -101,17 +106,41 @@
     const digits = String(b.client_phone || "").replace(/\D/g, "");
     const waLink = digits.length >= 10 ? "https://wa.me/55" + digits : null;
     return (
-      '<div class="agenda-booking">' +
-        '<strong class="ab-client">' + escapeHTML(b.client_name || "—") + (b.is_guest ? ' <span class="ab-guest">balcão</span>' : "") + "</strong>" +
+      '<div class="agenda-booking' + (b.status === "falta" ? " is-noshow" : "") + '">' +
+        '<strong class="ab-client">' + escapeHTML(b.client_name || "—") +
+          (b.is_guest ? ' <span class="ab-guest">balcão</span>' : "") +
+          (b.status === "falta" ? ' <span class="ab-noshow-tag">não veio</span>' : "") + "</strong>" +
         '<span class="ab-service">' + escapeHTML(b.service_name) + " · " + b.time + "–" + endHm + " · " + brl(b.price) + "</span>" +
         '<span class="ab-actions">' +
           (waLink
             ? '<a class="ab-phone" href="' + waLink + '" target="_blank" rel="noopener" title="Chamar no WhatsApp">' + svgIcon("phone", "icon icon-sm") + escapeHTML(maskPhone(b.client_phone || "")) + "</a>"
             : '<span class="ab-phone">' + escapeHTML(b.client_phone || "—") + "</span>") +
-          '<button type="button" class="ab-cancel" data-cancel="' + b.id + '" data-client="' + escapeHTML(b.client_name || "cliente") + '">Cancelar</button>' +
+          botoesDoCartao(b) +
         "</span>" +
       "</div>"
     );
+  }
+
+  /** Já passou do horário de começar? Só aí faz sentido falar em falta. */
+  function jaComecou(b) {
+    const hoje = toISODate(new Date());
+    if (b.date < hoje) return true;
+    if (b.date > hoje) return false;
+    const agora = new Date();
+    return hmToMin(b.time) <= agora.getHours() * 60 + agora.getMinutes();
+  }
+
+  function botoesDoCartao(b) {
+    const cliente = escapeHTML(b.client_name || "cliente");
+    if (b.status === "falta") {
+      return '<button type="button" class="ab-undo" data-status="confirmado" data-id="' + b.id +
+        '" data-client="' + cliente + '">Desfazer falta</button>';
+    }
+    return (jaComecou(b)
+        ? '<button type="button" class="ab-noshow" data-status="falta" data-id="' + b.id +
+            '" data-client="' + cliente + '">Faltou</button>'
+        : "") +
+      '<button type="button" class="ab-cancel" data-cancel="' + b.id + '" data-client="' + cliente + '">Cancelar</button>';
   }
 
   /** O que ocupa a coluna (pro ou 'any') no horário t? */
@@ -298,6 +327,21 @@
       if (!window.confirm("Remover este bloqueio?")) return;
       const res = await api.deleteBlock(unblock.dataset.unblock);
       showToast(res.ok ? "Bloqueio removido." : (res.data.error || "Não foi possível remover."));
+      loadAgenda();
+      return;
+    }
+
+    const marca = ev.target.closest("[data-status]");
+    if (marca) {
+      const virarFalta = marca.dataset.status === "falta";
+      const pergunta = virarFalta
+        ? "Marcar que " + marca.dataset.client + " não compareceu?"
+        : "Desfazer a falta de " + marca.dataset.client + "?";
+      if (!window.confirm(pergunta)) return;
+      marca.disabled = true;
+      const r = await api.setBookingStatus(marca.dataset.id, marca.dataset.status);
+      if (!r.ok) { marca.disabled = false; showToast(r.data.error || "Não foi possível marcar."); return; }
+      showToast(virarFalta ? "Falta registrada." : "Falta desfeita.");
       loadAgenda();
       return;
     }

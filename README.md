@@ -32,6 +32,11 @@ quem desmarcou (cliente ou salão). O horário volta a ficar livre na mesma hora
 mas o registro continua — dá para ver quem desmarca sempre em cima da hora. Os
 cancelamentos do dia aparecem numa faixa própria no painel, abaixo da grade.
 
+Quem simplesmente não aparece é outra coisa: no painel, o cartão de um horário
+que já começou ganha o botão **Faltou** (`status = falta`, com **Desfazer falta**
+para corrigir um clique errado). A falta continua visível na grade, apagada e com
+etiqueta, mas sai do faturamento e da contagem de atendimentos do dia.
+
 ## Rodando na sua máquina
 
 Precisa do **XAMPP** (Apache + MariaDB + PHP 8).

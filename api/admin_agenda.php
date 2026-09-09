@@ -37,7 +37,7 @@ function fetch_bookings(PDO $pdo, string $from, string $to): array
            FROM bookings b
            LEFT JOIN users u ON u.id = b.user_id
            LEFT JOIN services s ON s.id = b.service_id
-          WHERE b.booking_date BETWEEN ? AND ?
+          WHERE b.booking_date BETWEEN ? AND ? AND b.status = "confirmado"
           ORDER BY b.booking_date, b.booking_time, b.pro_id'
     );
     $stmt->execute([$from, $to]);
@@ -46,6 +46,30 @@ function fetch_bookings(PDO $pdo, string $from, string $to): array
         $r['price']        = (float) $r['price'];
         $r['duration_min'] = (int) $r['duration_min'];
         $r['is_guest']     = (bool) $r['is_guest'];
+    }
+    return $rows;
+}
+
+/** Cancelamentos do período — o registro que antes sumia com o DELETE. */
+function fetch_cancellations(PDO $pdo, string $from, string $to): array
+{
+    $stmt = $pdo->prepare(
+        'SELECT b.id, TIME_FORMAT(b.booking_time, "%H:%i") AS time,
+                DATE_FORMAT(b.booking_date, "%Y-%m-%d") AS date,
+                DATE_FORMAT(b.cancelled_at, "%d/%m às %H:%i") AS cancelled_at,
+                b.cancelled_by, b.pro_id, b.price,
+                COALESCE(s.name, b.service_id)   AS service_name,
+                COALESCE(u.name, b.guest_name)   AS client_name
+           FROM bookings b
+           LEFT JOIN users u ON u.id = b.user_id
+           LEFT JOIN services s ON s.id = b.service_id
+          WHERE b.booking_date BETWEEN ? AND ? AND b.status = "cancelado"
+          ORDER BY b.booking_date, b.booking_time'
+    );
+    $stmt->execute([$from, $to]);
+    $rows = $stmt->fetchAll();
+    foreach ($rows as &$r) {
+        $r['price'] = (float) $r['price'];
     }
     return $rows;
 }
@@ -73,8 +97,9 @@ if (isset($_GET['from'], $_GET['to'])) {
     json_response(200, [
         'from'     => $from,
         'to'       => $to,
-        'bookings' => fetch_bookings($pdo, $from, $to),
-        'blocks'   => fetch_blocks($pdo, $from, $to),
+        'bookings'  => fetch_bookings($pdo, $from, $to),
+        'blocks'    => fetch_blocks($pdo, $from, $to),
+        'cancelled' => fetch_cancellations($pdo, $from, $to),
     ]);
 }
 
@@ -87,6 +112,7 @@ if (!is_valid_date($date)) {
 json_response(200, [
     'date'     => $date,
     'closed'   => in_array((int) (new DateTime($date))->format('w'), CLOSED_WEEKDAYS, true),
-    'bookings' => fetch_bookings($pdo, $date, $date),
-    'blocks'   => fetch_blocks($pdo, $date, $date),
+    'bookings'  => fetch_bookings($pdo, $date, $date),
+    'blocks'    => fetch_blocks($pdo, $date, $date),
+    'cancelled' => fetch_cancellations($pdo, $date, $date),
 ]);

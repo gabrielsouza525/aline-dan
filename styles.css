@@ -994,6 +994,11 @@ body.menu-open .site-header .btn-logout { color: var(--color-text-muted); }
 .bi-info strong { display: block; font-family: var(--font-display); font-size: 1.25rem; font-weight: 500; color: var(--color-foreground); }
 .bi-info span { font-size: 0.86rem; color: var(--color-text-muted); }
 .bi-actions { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+.bi-cancelled {
+  display: inline-flex; align-items: center; gap: var(--space-1);
+  font-size: 0.76rem; color: var(--color-text-muted); text-align: right;
+}
+.bi-cancelled .icon { flex: none; }
 /* Depois do prazo de 4h: aviso no lugar dos botões */
 .bi-locked {
   display: flex; align-items: flex-start; gap: var(--space-2);
@@ -1290,6 +1295,15 @@ body.menu-open .site-header .btn-logout { color: var(--color-text-muted); }
 .client-none { padding: var(--space-4); margin: 0; color: var(--color-text-muted); font-size: 0.88rem; }
 
 .blocks-list { display: flex; align-items: center; gap: var(--space-2); flex-wrap: wrap; margin-bottom: var(--space-5); font-size: 0.86rem; }
+.cancelled-list { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-top: var(--space-4); font-size: 0.8rem; color: var(--color-text-muted); }
+.cancelled-chip {
+  display: inline-flex; flex-direction: column; gap: 2px;
+  padding: var(--space-2) var(--space-3); border-radius: var(--radius-md);
+  border: 1px solid var(--color-border); background: var(--color-surface);
+  font-size: 0.78rem; color: var(--color-foreground); max-width: 100%;
+}
+.cancelled-chip s { text-decoration: line-through; text-decoration-color: var(--color-border-strong); }
+.cancelled-chip em { font-size: 0.7rem; font-style: normal; color: var(--color-text-muted); }
 .block-chip { display: inline-flex; align-items: center; gap: var(--space-2); background: #FDF6E3; border: 1px solid #E8D9A8; color: #7A5B12; padding: var(--space-1) var(--space-3); border-radius: var(--radius-full); font-size: 0.8rem; }
 .block-remove { border: 0; background: none; color: #7A5B12; font-size: 1.1rem; cursor: pointer; min-width: 22px; min-height: 22px; }
 .block-remove:hover { color: var(--color-destructive); }

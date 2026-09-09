@@ -265,6 +265,7 @@ function send_due_reminders(PDO $pdo): int
            LEFT JOIN users u ON u.id = b.user_id
            LEFT JOIN services s ON s.id = b.service_id
           WHERE b.booking_date = DATE_ADD(CURDATE(), INTERVAL 1 DAY)
+            AND b.status = "confirmado"
             AND b.reminder_sent_at IS NULL'
     );
     $stmt->execute();

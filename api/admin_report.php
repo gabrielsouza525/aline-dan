@@ -24,7 +24,8 @@ function month_totals(PDO $pdo, string $month): array
     $end   = date('Y-m-t', strtotime($start));
     $stmt  = $pdo->prepare(
         'SELECT COUNT(*) AS bookings, COALESCE(SUM(price), 0) AS revenue
-           FROM bookings WHERE booking_date BETWEEN ? AND ?'
+           FROM bookings
+          WHERE booking_date BETWEEN ? AND ? AND status = "confirmado"'
     );
     $stmt->execute([$start, $end]);
     $r = $stmt->fetch();
@@ -53,7 +54,7 @@ $stmt = $pdo->prepare(
     'SELECT b.service_id, COALESCE(s.name, b.service_id) AS name,
             COUNT(*) AS count, COALESCE(SUM(b.price), 0) AS revenue
        FROM bookings b LEFT JOIN services s ON s.id = b.service_id
-      WHERE b.booking_date BETWEEN ? AND ?
+      WHERE b.booking_date BETWEEN ? AND ? AND b.status = "confirmado"
       GROUP BY b.service_id, s.name
       ORDER BY count DESC, revenue DESC
       LIMIT 5'
@@ -66,7 +67,7 @@ $topServices = array_map(static function ($r) {
 // Agendamentos por profissional
 $stmt = $pdo->prepare(
     'SELECT pro_id, COUNT(*) AS count FROM bookings
-      WHERE booking_date BETWEEN ? AND ?
+      WHERE booking_date BETWEEN ? AND ? AND status = "confirmado"
       GROUP BY pro_id ORDER BY count DESC'
 );
 $stmt->execute([$current['start'], $current['end']]);

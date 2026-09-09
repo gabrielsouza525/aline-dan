@@ -27,7 +27,7 @@
     user: null,
     date: toISODate(new Date()),
     view: "day",              // 'day' | 'week'
-    bookings: [], blocks: [], closed: false,
+    bookings: [], blocks: [], cancelled: [], closed: false,
     nbClientId: null,          // cliente selecionada no balcão
   };
 
@@ -181,6 +181,26 @@
       }).join("") + "</div>";
   }
 
+  /** Cancelamentos do dia: some da grade, mas não do conhecimento da Aline. */
+  function renderCancelledList() {
+    const wrap = $("#cancelledList");
+    if (!wrap) return;
+    if (!state.cancelled.length) { wrap.innerHTML = ""; return; }
+
+    wrap.innerHTML =
+      '<div class="cancelled-list"><strong>' + state.cancelled.length +
+        (state.cancelled.length === 1 ? " cancelamento" : " cancelamentos") + " neste dia:</strong>" +
+      state.cancelled.map((b) => {
+        const pro = (PROFESSIONALS.find((p) => p.id === b.pro_id) || {}).name || b.pro_id;
+        const quem = b.cancelled_by === "salao" ? "pelo sal\u00e3o" : "pela cliente";
+        // o risco fica num <s> pr\u00f3prio: em CSS, filho n\u00e3o desfaz sublinhado do pai
+        return '<span class="cancelled-chip"><s>' + b.time + " \u00b7 " +
+          escapeHTML(b.client_name || "\u2014") + " \u00b7 " + escapeHTML(b.service_name) +
+          " \u00b7 " + escapeHTML(pro) + "</s>" +
+          '<em>desmarcado ' + quem + (b.cancelled_at ? " em " + b.cancelled_at : "") + "</em></span>";
+      }).join("") + "</div>";
+  }
+
   async function loadDay() {
     const res = await api.adminAgenda(state.date);
     if (res.status === 401 || res.status === 403) { location.replace("login.html?next=admin"); return; }
@@ -190,10 +210,12 @@
     }
     state.bookings = res.data.bookings || [];
     state.blocks = res.data.blocks || [];
+    state.cancelled = res.data.cancelled || [];
     state.closed = Boolean(res.data.closed);
     renderDayNav();
     renderStats();
     renderBlocksList();
+    renderCancelledList();
     renderDayGrid();
   }
 
@@ -209,6 +231,7 @@
     const bookings = res.data.bookings || [];
     state.bookings = bookings;
     state.blocks = [];
+    state.cancelled = res.data.cancelled || [];
     state.closed = false;
     renderDayNav();
 
@@ -217,6 +240,7 @@
     $("#statRevenue").textContent = brl(bookings.reduce((s, b) => s + (b.price || 0), 0));
     $("#statFree").textContent = freeHours(days.length);
     $("#blocksList").innerHTML = "";
+    renderCancelledList();
 
     const byDay = {};
     bookings.forEach((b) => {

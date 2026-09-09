@@ -24,13 +24,21 @@ serviço de 10 minutos ainda pode começar às 17:50. A verificação roda de no
 servidor, dentro de uma transação com as linhas travadas, para duas clientes não
 pegarem o mesmo horário ao mesmo tempo.
 
+A cliente cancela e remarca sozinha **até 4 horas antes**; passado o prazo, só
+falando com o salão. A administração não tem esse limite.
+
+Cancelar não apaga o agendamento: ele fica com `status = cancelado`, a data e
+quem desmarcou (cliente ou salão). O horário volta a ficar livre na mesma hora,
+mas o registro continua — dá para ver quem desmarca sempre em cima da hora. Os
+cancelamentos do dia aparecem numa faixa própria no painel, abaixo da grade.
+
 ## Rodando na sua máquina
 
 Precisa do **XAMPP** (Apache + MariaDB + PHP 8).
 
 1. Copie a pasta do projeto para `C:\xampp\htdocs\aline-dan`.
 2. Crie o banco e as tabelas importando, nesta ordem, os arquivos de `setup/`:
-   `schema.sql`, `migrate-v2.sql`, `migrate-v3.sql`.
+   `schema.sql`, `migrate-v2.sql`, `migrate-v3.sql`, `migrate-v4.sql`.
 3. Copie `api/config.example.php` para `api/config.php` e ajuste o que precisar.
    No XAMPP padrão (root sem senha) já funciona como está.
 4. Abra `http://localhost/aline-dan/`.

@@ -171,8 +171,9 @@ function day_context(PDO $pdo, string $date, bool $forUpdate = false, int $exclu
 {
     // $excludeId: ao remarcar, o próprio agendamento não pode bloquear a si mesmo
     $params = [$date];
+    // status: cancelado não ocupa horário nenhum
     $sql = 'SELECT pro_id, TIME_FORMAT(booking_time, "%H:%i") AS time, duration_min
-              FROM bookings WHERE booking_date = ?';
+              FROM bookings WHERE booking_date = ? AND status = "confirmado"';
     if ($excludeId > 0) {
         $sql .= ' AND id <> ?';
         $params[] = $excludeId;

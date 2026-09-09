@@ -46,12 +46,17 @@ CREATE TABLE IF NOT EXISTS bookings (
   guest_phone      VARCHAR(20)  NULL,
   price            DECIMAL(8,2) NOT NULL DEFAULT 0,  -- congelado no momento do agendamento
   duration_min     INT UNSIGNED NOT NULL DEFAULT 60, -- idem
+  status           ENUM('confirmado','cancelado','falta')
+                   NOT NULL DEFAULT 'confirmado',    -- cancelar marca, não apaga
+  cancelled_at     DATETIME     NULL,
+  cancelled_by     ENUM('cliente','salao') NULL,
   reminder_sent_at DATETIME     NULL,
   created_at       TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_bookings_user
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
   KEY idx_slot (booking_date, booking_time),
-  KEY idx_user (user_id, booking_date)
+  KEY idx_user (user_id, booking_date),
+  KEY idx_status_data (status, booking_date)
 ) ENGINE = InnoDB;
 
 CREATE TABLE IF NOT EXISTS schedule_blocks (

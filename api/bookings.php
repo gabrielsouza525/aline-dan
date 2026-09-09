@@ -19,12 +19,18 @@ $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 // ---- Listar ----
 if ($method === 'GET') {
     $scope = (string) ($_GET['scope'] ?? 'future');
-    $where = $scope === 'all' ? '' : ' AND b.booking_date >= CURDATE()';
+    // Na lista de próximos, cancelado não aparece. No histórico aparece,
+    // marcado — é justamente o registro que antes se perdia.
+    $where = $scope === 'all'
+        ? ''
+        : ' AND b.booking_date >= CURDATE() AND b.status = "confirmado"';
     $stmt  = $pdo->prepare(
         'SELECT b.id, b.service_id, b.pro_id,
                 DATE_FORMAT(b.booking_date, "%Y-%m-%d") AS date,
                 TIME_FORMAT(b.booking_time, "%H:%i")    AS time,
-                b.price, b.duration_min,
+                b.price, b.duration_min, b.status,
+                DATE_FORMAT(b.cancelled_at, "%d/%m/%Y") AS cancelled_at,
+                b.cancelled_by,
                 COALESCE(s.name, b.service_id) AS service_name
            FROM bookings b LEFT JOIN services s ON s.id = b.service_id
           WHERE b.user_id = ?' . $where . '
@@ -36,7 +42,8 @@ if ($method === 'GET') {
         $r['price'] = (float) $r['price'];
         $r['duration_min'] = (int) $r['duration_min'];
         // a tela não recalcula o prazo: quem decide é o servidor
-        $r['can_change'] = client_can_change($r['date'], $r['time']);
+        $r['can_change'] = $r['status'] === 'confirmado'
+            && client_can_change($r['date'], $r['time']);
     }
     json_response(200, ['bookings' => $rows]);
 }
@@ -119,6 +126,7 @@ if ($method === 'PUT') {
         'SELECT b.id, b.user_id, b.service_id, b.pro_id, b.duration_min,
                 DATE_FORMAT(b.booking_date, "%Y-%m-%d") AS date,
                 TIME_FORMAT(b.booking_time, "%H:%i")    AS time,
+                b.status,
                 COALESCE(s.name, b.service_id) AS service_name
            FROM bookings b LEFT JOIN services s ON s.id = b.service_id
           WHERE b.id = ?'
@@ -128,6 +136,10 @@ if ($method === 'PUT') {
 
     if ($booking === false || (!$isAdmin && (int) $booking['user_id'] !== (int) $user['id'])) {
         json_response(404, ['error' => 'Agendamento não encontrado.']);
+    }
+
+    if ($booking['status'] !== 'confirmado') {
+        json_response(422, ['error' => 'Este agendamento foi cancelado e não pode ser remarcado.']);
     }
 
     // A cliente remarca até 4h antes; a administração, sempre.
@@ -195,7 +207,8 @@ if ($method === 'DELETE') {
     }
 
     $stmt = $pdo->prepare(
-        'SELECT b.id, b.user_id, DATE_FORMAT(b.booking_date, "%d/%m/%Y") AS d,
+        'SELECT b.id, b.user_id, b.status,
+                DATE_FORMAT(b.booking_date, "%d/%m/%Y") AS d,
                 DATE_FORMAT(b.booking_date, "%Y-%m-%d") AS date_iso,
                 TIME_FORMAT(b.booking_time, "%H:%i") AS t,
                 COALESCE(s.name, b.service_id) AS service_name,
@@ -213,6 +226,10 @@ if ($method === 'DELETE') {
         json_response(404, ['error' => 'Agendamento não encontrado.']);
     }
 
+    if ($booking['status'] === 'cancelado') {
+        json_response(422, ['error' => 'Este agendamento já estava cancelado.']);
+    }
+
     // A cliente cancela até 4h antes; a administração, sempre.
     if (!$isAdmin && !client_can_change($booking['date_iso'], $booking['t'])) {
         $passou = minutes_until($booking['date_iso'], $booking['t']) < 0;
@@ -221,8 +238,14 @@ if ($method === 'DELETE') {
             : change_deadline_message('cancelado')]);
     }
 
-    $stmt = $pdo->prepare('DELETE FROM bookings WHERE id = ?');
-    $stmt->execute([$id]);
+    // Não apaga: marca. Assim fica registrado quem desmarcou e quando, e a
+    // Aline consegue enxergar quem desmarca sempre em cima da hora.
+    $stmt = $pdo->prepare(
+        'UPDATE bookings
+            SET status = "cancelado", cancelled_at = NOW(), cancelled_by = ?
+          WHERE id = ?'
+    );
+    $stmt->execute([$isAdmin ? 'salao' : 'cliente', $id]);
 
     if (!$isAdmin) {
         notify_admin(

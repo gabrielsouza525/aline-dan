@@ -40,7 +40,9 @@
     const past = [];
     state.bookings.forEach((b) => {
       const [h, m] = b.time.split(":").map(Number);
-      const isPast = b.date < todayISO || (b.date === todayISO && h * 60 + m < nowMin);
+      // Cancelado nunca é "próximo", mesmo com data futura: ele já não vale.
+      const isPast = b.status === "cancelado"
+        || b.date < todayISO || (b.date === todayISO && h * 60 + m < nowMin);
       (isPast ? past : upcoming).push(b);
     });
     upcoming.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
@@ -50,11 +52,12 @@
 
   function renderStats(upcoming, past) {
     $("#statUpcoming").textContent = String(upcoming.length);
-    $("#statVisits").textContent = String(past.length);
+    $("#statVisits").textContent = String(past.filter((b) => b.status !== "cancelado").length);
 
+    // O serviço preferido sai do que ela de fato fez, não do que desmarcou
     const counts = {};
     const names = {};
-    state.bookings.forEach((b) => {
+    state.bookings.filter((b) => b.status !== "cancelado").forEach((b) => {
       counts[b.service_id] = (counts[b.service_id] || 0) + 1;
       names[b.service_id] = b.service_name || b.service_id;
     });
@@ -91,7 +94,11 @@
                     svgIcon("calendar", "icon icon-sm") + "Remarcar</button>" +
                   '<button type="button" class="btn-cancel" data-cancel="' + b.id + '">Cancelar</button>' +
                 "</div>")
-          : '<span class="bi-done">' + svgIcon("check", "icon icon-sm") + " Realizado</span>") +
+          : (b.status === "cancelado"
+              ? '<span class="bi-cancelled">' + svgIcon("block", "icon icon-sm") + " Cancelado" +
+                  (b.cancelled_at ? " em " + b.cancelled_at : "") +
+                  (b.cancelled_by === "salao" ? " pelo sal\u00e3o" : "") + "</span>"
+              : '<span class="bi-done">' + svgIcon("check", "icon icon-sm") + " Realizado</span>")) +
       "</div>" +
       (withCancel && b.can_change !== false ? '<div class="reschedule-panel" id="rs-' + b.id + '" hidden></div>' : "")
     );

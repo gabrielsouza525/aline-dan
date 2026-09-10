@@ -471,24 +471,122 @@
     scrollCarouselToChecked(track);
   }
 
-  function renderDateChips() {
-    const dates = getOpenDates();
-    if (state.date && !dates.includes(state.date)) state.date = null;
-    $("#dateScroller").innerHTML = dates.map((iso, idx) => {
-      const d = fromISODate(iso);
-      const checked = state.date === iso || (!state.date && idx === 0);
-      if (checked) state.date = iso;
-      return (
-        '<div class="date-chip">' +
-          '<input type="radio" name="date" id="date-' + iso + '" value="' + iso + '"' + (checked ? " checked" : "") + " />" +
-          '<label for="date-' + iso + '">' +
-            '<span class="dc-weekday">' + WEEKDAYS_SHORT[d.getDay()] + "</span>" +
-            '<span class="dc-day">' + d.getDate() + "</span>" +
-            '<span class="dc-month">' + MONTHS_SHORT[d.getMonth()] + "</span>" +
-          "</label>" +
-        "</div>"
-      );
-    }).join("");
+  // ---------- Calendário ----------
+  const MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho",
+                 "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+  const cal = { ano: 0, mes: 0 };   // mês em exibição
+
+  /** Último dia que aceita agendamento (o servidor usa o mesmo limite). */
+  function ultimoDiaAceito() {
+    const d = new Date();
+    d.setDate(d.getDate() + 60);
+    return d;
+  }
+
+  /** O salão atende neste dia e ainda dá tempo? */
+  function diaDisponivel(d) {
+    if (CLOSED_WEEKDAYS.includes(d.getDay())) return false;
+    const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+    const alvo = new Date(d); alvo.setHours(0, 0, 0, 0);
+    if (alvo < hoje) return false;
+    if (alvo > ultimoDiaAceito()) return false;
+    // Hoje só vale se sobrou algum horário
+    if (alvo.getTime() === hoje.getTime()) {
+      return !TIME_SLOTS.every((t) => isSlotInPast(toISODate(d), t));
+    }
+    return true;
+  }
+
+  /** Primeira data que aceita agendamento, a partir de hoje. */
+  function primeiraDataLivre() {
+    const d = new Date();
+    for (let i = 0; i <= 70; i++) {
+      const tentativa = new Date(d.getFullYear(), d.getMonth(), d.getDate() + i);
+      if (diaDisponivel(tentativa)) return tentativa;
+    }
+    return null;
+  }
+
+  function renderCalendar() {
+    const caixa = $("#calendario");
+    if (!caixa) return;
+
+    if (!state.date) {
+      const primeira = primeiraDataLivre();
+      if (primeira) state.date = toISODate(primeira);
+    }
+    if (!cal.ano) {
+      const base = state.date ? fromISODate(state.date) : new Date();
+      cal.ano = base.getFullYear();
+      cal.mes = base.getMonth();
+    }
+
+    const primeiroDoMes = new Date(cal.ano, cal.mes, 1);
+    const diasNoMes = new Date(cal.ano, cal.mes + 1, 0).getDate();
+    const vazios = primeiroDoMes.getDay();          // domingo = 0
+
+    // Limites da navegação: nada antes deste mês, nada depois do último aceito
+    const agora = new Date();
+    const limite = ultimoDiaAceito();
+    const temAnterior = (cal.ano > agora.getFullYear()) ||
+      (cal.ano === agora.getFullYear() && cal.mes > agora.getMonth());
+    const temProximo = (cal.ano < limite.getFullYear()) ||
+      (cal.ano === limite.getFullYear() && cal.mes < limite.getMonth());
+
+    let html =
+      '<div class="cal-topo">' +
+        '<button type="button" class="cal-seta" data-cal="-1" aria-label="Mês anterior"' +
+          (temAnterior ? "" : " disabled") + ">" + svgIcon("chevron-left", "icon icon-sm") + "</button>" +
+        // só o mês ganha maiúscula; "de" continua minúsculo
+      '<strong class="cal-mes" aria-live="polite">' +
+        MESES[cal.mes].charAt(0).toUpperCase() + MESES[cal.mes].slice(1) + " de " + cal.ano + "</strong>" +
+        '<button type="button" class="cal-seta" data-cal="1" aria-label="Próximo mês"' +
+          (temProximo ? "" : " disabled") + ">" + svgIcon("chevron-right", "icon icon-sm") + "</button>" +
+      "</div>" +
+      '<div class="cal-semana" aria-hidden="true">' +
+        ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"]
+          .map((d) => "<span>" + d + "</span>").join("") +
+      "</div><div class=\"cal-dias\">";
+
+    for (let i = 0; i < vazios; i++) html += '<span class="cal-vazio"></span>';
+
+    const hojeISO = toISODate(new Date());
+    for (let dia = 1; dia <= diasNoMes; dia++) {
+      const d = new Date(cal.ano, cal.mes, dia);
+      const iso = toISODate(d);
+      const livre = diaDisponivel(d);
+      const classes = ["cal-dia"];
+      if (!livre) classes.push("is-off");
+      if (iso === state.date) classes.push("is-selected");
+      if (iso === hojeISO) classes.push("is-today");
+      html += '<button type="button" class="' + classes.join(" ") + '" data-dia="' + iso + '"' +
+        (livre ? "" : " disabled") +
+        ' aria-label="' + dia + " de " + MESES[cal.mes] + '"' +
+        (iso === state.date ? ' aria-current="date"' : "") + ">" + dia + "</button>";
+    }
+    caixa.innerHTML = html + "</div>";
+  }
+
+  function setupCalendar() {
+    const caixa = $("#calendario");
+    if (!caixa) return;
+    caixa.addEventListener("click", (ev) => {
+      const seta = ev.target.closest("[data-cal]");
+      if (seta) {
+        const novo = new Date(cal.ano, cal.mes + Number(seta.dataset.cal), 1);
+        cal.ano = novo.getFullYear();
+        cal.mes = novo.getMonth();
+        renderCalendar();
+        return;
+      }
+      const dia = ev.target.closest("[data-dia]");
+      if (!dia || dia.disabled) return;
+      state.date = dia.dataset.dia;
+      state.time = null;
+      renderCalendar();
+      renderSlots();
+      hideError("errSlot");
+    });
   }
 
   async function renderSlots() {
@@ -534,7 +632,7 @@
 
     if (n === 1) scrollCarouselToChecked($("#serviceOptions"));
     if (n === 2) scrollCarouselToChecked($("#proOptions"));
-    if (n === 3) { renderDateChips(); renderSlots(); }
+    if (n === 3) { renderCalendar(); renderSlots(); }
     if (n === 4) { renderSummary(); fillClientFieldsFromUser(); updateLoginNote(); }
 
     const card = $(".booking-card");
@@ -972,6 +1070,7 @@
     $("#btnBack").addEventListener("click", () => goToStep(state.step - 1));
     form.addEventListener("submit", submitBooking);
     $("#btnNewBooking").addEventListener("click", resetBookingForm);
+    setupCalendar();
 
     const phone = $("#clientPhone");
     attachPhoneMask(phone);

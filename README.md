@@ -10,8 +10,8 @@ serviços e um relatório de faturamento.
 ## Como funciona a agenda
 
 O salão abre de **terça a sábado, das 08h às 18h**, e os horários de início vão de
-**10 em 10 minutos** — 60 por dia. Cada agendamento ocupa o intervalo
-`[início, início + duração do serviço)`, e os serviços vão de 10 a 300 minutos.
+**5 em 5 minutos** — 120 por dia. Cada agendamento ocupa o intervalo
+`[início, início + duração do serviço)`, e os serviços vão de 5 a 300 minutos.
 
 Um horário só aparece livre quando, em **todos** os minutos desse intervalo:
 
@@ -20,7 +20,7 @@ Um horário só aparece livre quando, em **todos** os minutos desse intervalo:
 - o serviço termina antes das 18h.
 
 Por isso um Mega Hair de 3 horas some da lista depois das 15:00, enquanto um
-serviço de 10 minutos ainda pode começar às 17:50. A verificação roda de novo no
+serviço de 5 minutos ainda pode começar às 17:55. A verificação roda de novo no
 servidor, dentro de uma transação com as linhas travadas, para duas clientes não
 pegarem o mesmo horário ao mesmo tempo.
 

@@ -1034,7 +1034,37 @@ body.menu-open .site-header .btn-logout { color: var(--color-text-muted); }
 .slot input:focus-visible + label { outline: 2px solid var(--color-ring); outline-offset: 2px; }
 .slot input:disabled + label { background: var(--rosa-veu); border-color: transparent; color: #BEA9B3; cursor: not-allowed; text-decoration: line-through; }
 
-/* Horários de 10 em 10 minutos: uma linha por hora, agrupadas em manhã e tarde */
+/* Calendário do passo 3 */
+.calendario { max-width: 380px; margin-bottom: var(--space-6); }
+.cal-topo { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-bottom: var(--space-4); }
+.cal-mes { font-family: var(--font-display); font-size: 1.15rem; font-weight: 500; }
+.cal-seta {
+  width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--color-border);
+  background: transparent; color: var(--color-foreground); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all var(--dur) var(--ease);
+}
+.cal-seta:hover:not(:disabled) { border-color: var(--color-primary); color: var(--color-primary); }
+.cal-seta:disabled { opacity: 0.25; cursor: default; }
+.cal-semana, .cal-dias { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+.cal-semana span {
+  text-align: center; padding-bottom: var(--space-2);
+  font-size: 0.6rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-text-muted);
+}
+.cal-dia {
+  aspect-ratio: 1; display: flex; align-items: center; justify-content: center;
+  border: 1px solid transparent; border-radius: var(--radius-sm);
+  background: transparent; font: inherit; font-size: 0.9rem;
+  font-variant-numeric: tabular-nums; color: var(--color-foreground); cursor: pointer;
+  transition: all var(--dur) var(--ease);
+}
+.cal-dia:hover:not(:disabled) { border-color: var(--color-border-strong); background: var(--rosa-veu); }
+.cal-dia.is-off { color: #C9B6BF; cursor: default; }
+.cal-dia.is-today:not(.is-selected) { border-color: var(--color-border-strong); font-weight: 500; }
+.cal-dia.is-selected { background: var(--vinho); border-color: var(--vinho); color: #fff; }
+.cal-dia:focus-visible { outline: 2px solid var(--color-ring); outline-offset: 2px; }
+
+/* Horários de 5 em 5 minutos: uma linha por hora, agrupadas em manhã e tarde */
 .slots-box { display: grid; gap: var(--space-4); }
 .slots-hours { display: grid; gap: var(--space-3); }
 .slots-period {
@@ -1044,7 +1074,8 @@ body.menu-open .site-header .btn-logout { color: var(--color-text-muted); }
 .slots-period:first-child { margin-top: 0; }
 .slot-hour { display: grid; grid-template-columns: 34px 1fr; align-items: center; gap: var(--space-3); }
 .sh-label { font-size: 0.78rem; font-variant-numeric: tabular-nums; letter-spacing: 0.04em; color: var(--color-text-muted); }
-.slot-hour .slots-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; max-width: 560px; }
+.slot-hour .slots-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 5px; max-width: 620px; }
+@media (min-width: 720px) { .slot-hour .slots-grid { grid-template-columns: repeat(12, minmax(0, 1fr)); max-width: 900px; } }
 .slot-hour .slot label { min-height: 40px; font-size: 0.85rem; }
 @media (max-width: 420px) {
   .slot-hour { grid-template-columns: 26px 1fr; gap: 6px; }

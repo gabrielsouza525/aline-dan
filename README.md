@@ -91,13 +91,26 @@ O mesmo instalador roda pelo navegador. Como ele cria conta de administradora,
 vem **desligado**: só responde se `SETUP_TOKEN` estiver preenchido em
 `api/config.php`.
 
-1. Pelo gerenciador de arquivos da hospedagem, abra `api/config.php` e escreva
-   uma frase secreta em `SETUP_TOKEN`.
-2. Abra `https://seusite.com.br/setup/instalar.php?chave=SUA_FRASE`. A página
-   confere o banco, popula o catálogo se estiver vazio e traz um formulário
+**Primeira instalação**, quando ainda não existe `api/config.php` (ou ele
+aponta para um banco que não responde): abra
+`https://seusite.com.br/setup/instalar.php` direto. A página mostra um
+formulário para os dados do MySQL, **testa a conexão antes de gravar** e só
+então escreve o `config.php`. Se o servidor não deixar gravar, ela mostra o
+conteúdo pronto para copiar e colar. Esse é o único momento sem chave —
+não há nada a proteger enquanto o banco não responde.
+
+**Depois disso**, com o banco de pé, a página passa a exigir chave:
+
+1. Pelo gerenciador de arquivos, abra `api/config.php` e escreva uma frase
+   secreta em `SETUP_TOKEN`.
+2. Abra `https://seusite.com.br/setup/instalar.php?chave=SUA_FRASE`. Ela
+   confere o banco, popula o catálogo se estiver vazio e traz o formulário
    para criar a administradora.
 3. **Volte ao `config.php` e esvazie o `SETUP_TOKEN`.** Enquanto ele tiver
    valor, quem souber o endereço e a chave troca a senha da administradora.
+
+O `config.php` **nunca vai para o Git** — é onde ficam as senhas do banco e do
+e-mail, e uma cópia com dados de localhost sobrescreveria a boa a cada deploy.
 
 O `setup/.htaccess` fecha o resto da pasta: os `.sql` e o cron não são
 baixáveis pela web, só o `instalar.php` responde.

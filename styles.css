@@ -1374,6 +1374,27 @@ body.menu-open .site-header .btn-logout { color: var(--color-text-muted); }
   min-height: 100dvh; display: flex; flex-direction: column; justify-content: center;
 }
 .agendar-page .booking-card { max-width: none; }
+
+/* Cartão largo, conteúdo centrado: sem isto tudo encosta na esquerda e
+   sobra meia tela vazia à direita. */
+.agendar-page .panel-title,
+.agendar-page .panel-hint,
+.agendar-page .slots-title,
+.agendar-page .booking-policy,
+.agendar-page .svc-selected-hint { text-align: center; }
+.agendar-page .panel-title { display: block; width: 100%; }
+.agendar-page .cat-chips,
+.agendar-page .slots-legend,
+.agendar-page .booking-nav { justify-content: center; }
+/* como item de flex o campo encolhe para o conteúdo: devolve a largura */
+.agendar-page .services-search { display: flex; justify-content: center; }
+.agendar-page .services-search .search-field { flex: 1 1 440px; }
+.agendar-page .calendario { margin-inline: auto; }
+.agendar-page .slots-hours { justify-items: center; }
+.agendar-page .slot-hour { width: 100%; max-width: 900px; }
+.agendar-page .summary-box,
+.agendar-page .form-fields,
+.agendar-page .login-required-note { max-width: 720px; margin-inline: auto; }
 /* Cabeçalho das páginas internas: voltar | marca | ações */
 .header-back {
   display: inline-flex; align-items: center; gap: var(--space-2);

@@ -111,6 +111,12 @@
 
   // ---------- Categorias de serviço (filtros) ----------
   let bookingFilter = null;  // etapa 1 do agendamento
+  let bookingQuery = "";     // etapa 1: busca por nome (vence a categoria)
+
+  /** Sem acento e em minúsculas, para "coloracao" achar "Coloração". */
+  function semAcento(s) {
+    return String(s == null ? "" : s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  }
 
   /** Sem acento e em minúsculas, para virar id de âncora. */
   function slug(s) {
@@ -420,10 +426,29 @@
   function renderServiceOptions() {
     const cats = serviceCategories();
     if (!bookingFilter || !cats.includes(bookingFilter)) bookingFilter = cats[0] || null;
-    $("#bookingCats").innerHTML = categoryChipsHTML(bookingFilter);
+
+    // Buscando, o texto manda: procura no catálogo inteiro e nenhuma categoria
+    // fica marcada, senão pareceria que a busca ignorou o resto.
+    const termos = semAcento(bookingQuery).split(/\s+/).filter(Boolean);
+    const buscando = termos.length > 0;
+    $("#bookingCats").innerHTML = categoryChipsHTML(buscando ? null : bookingFilter);
 
     const track = $("#serviceOptions");
-    track.innerHTML = SERVICES.filter((s) => s.category === bookingFilter).map((s) => (
+    const lista = buscando
+      ? SERVICES.filter((s) => {
+          const alvo = semAcento(s.name + " " + (s.desc || "") + " " + s.category);
+          return termos.every((t) => alvo.includes(t));
+        })
+      : SERVICES.filter((s) => s.category === bookingFilter);
+
+    if (!lista.length) {
+      track.innerHTML = '<p class="slots-empty">Nenhum serviço encontrado para <strong>' +
+        escapeHTML(bookingQuery.trim()) + "</strong>.</p>";
+      updateCarouselButtons(track);
+      return;
+    }
+
+    track.innerHTML = lista.map((s) => (
       '<div class="option-card carousel-item c-reveal">' +
         '<input type="radio" name="service" id="svc-' + s.id + '" value="' + s.id + '"' + (state.serviceId === s.id ? " checked" : "") + " />" +
         '<label for="svc-' + s.id + '">' +
@@ -441,6 +466,16 @@
   }
 
   /** Mostra o serviço escolhido mesmo ao navegar entre categorias. */
+  /** Troca o texto da busca da etapa 1 e redesenha as opções. */
+  function setBookingQuery(texto) {
+    bookingQuery = texto;
+    const campo = $("#bookingSearch");
+    if (campo && campo.value !== texto) campo.value = texto;
+    const limpar = $("#bookingSearchClear");
+    if (limpar) limpar.hidden = texto.trim() === "";
+    renderServiceOptions();
+  }
+
   function updateServiceHint() {
     const hint = $("#svcSelectedHint");
     if (!hint) return;
@@ -1053,8 +1088,20 @@
       const chip = ev.target.closest("[data-cat]");
       if (!chip) return;
       bookingFilter = chip.dataset.cat;
-      renderServiceOptions();
+      setBookingQuery("");   // escolher categoria desfaz a busca
     });
+
+    const campoBusca = $("#bookingSearch");
+    if (campoBusca) {
+      campoBusca.addEventListener("input", () => setBookingQuery(campoBusca.value));
+      campoBusca.addEventListener("keydown", (ev) => {
+        if (ev.key === "Escape") { setBookingQuery(""); campoBusca.blur(); }
+      });
+      $("#bookingSearchClear").addEventListener("click", () => {
+        setBookingQuery("");
+        campoBusca.focus();
+      });
+    }
 
     form.addEventListener("change", (ev) => {
       const input = ev.target;

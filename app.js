@@ -755,48 +755,77 @@
   }
 
   // ---------- Animações de entrada (rolagem) ----------
-  let revealIO = null;
+  /*
+   * Antes isto usava IntersectionObserver. O problema: quando a página não está
+   * sendo pintada — aba em segundo plano, janela minimizada, alguns navegadores
+   * embutidos — o observador simplesmente não dispara, e aí a rede de segurança
+   * despejava tudo de uma vez. Quem voltava para a aba encontrava a página
+   * inteira já revelada, sem animação nenhuma ao rolar.
+   *
+   * Comparar a posição do elemento com a altura da janela não depende de pintura
+   * e responde na hora. É uma conta por elemento pendente, e eles saem da lista
+   * assim que aparecem.
+   */
+  const MARGEM = 0.86;          // revela quando o topo passa de 86% da tela
+  let pendentes = [];
+  let revealTimer = 0;
+  let checagemAgendada = false;
 
-  let revealFuncionou = false;
+  function revelarVisiveis() {
+    checagemAgendada = false;
+    if (!pendentes.length) return;
+    const limite = window.innerHeight * MARGEM;
+    const restantes = [];
+    pendentes.forEach((el) => {
+      const r = el.getBoundingClientRect();
+      // já entrou pela parte de baixo, ou já passou por cima
+      if (r.top < limite && r.bottom > 0) el.classList.add("is-visible");
+      else if (r.bottom <= 0) el.classList.add("is-visible");
+      else restantes.push(el);
+    });
+    pendentes = restantes;
+  }
+
+  function agendarChecagem() {
+    if (checagemAgendada) return;
+    checagemAgendada = true;
+    requestAnimationFrame(revelarVisiveis);
+    // rAF não roda com a aba escondida; o tempo garante que a conta aconteça
+    setTimeout(revelarVisiveis, 120);
+  }
 
   function initReveal() {
     // Mesmo com "movimento reduzido" mantemos a revelação: o CSS remove o
     // deslocamento nesse modo e sobra só um esmaecimento suave.
-    if ("IntersectionObserver" in window) {
-      // usa o "observer" recebido: a rede de segurança pode ter zerado revealIO
-      revealIO = new IntersectionObserver((entries, observer) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            revealFuncionou = true;
-            entry.target.classList.add("is-visible");
-            observer.unobserve(entry.target);
-          }
-        });
-      }, { threshold: 0.12 });
-    }
     observeReveal(document.querySelectorAll(".reveal"));
+    window.addEventListener("scroll", agendarChecagem, { passive: true });
+    window.addEventListener("resize", agendarChecagem, { passive: true });
+    // Carregar imagem/fonte muda a altura das coisas e pode revelar mais
+    window.addEventListener("load", agendarChecagem);
 
-    // REDE DE SEGURANÇA: conteúdo nunca pode ficar invisível.
-    // Se o observador não disparar (aba oculta ao carregar, navegador antigo,
-    // extensão bloqueando), desligamos a revelação e mostramos tudo.
-    setTimeout(() => {
-      if (revealFuncionou) return;
-      revealIO = null;
-      mostrarTudo();
-    }, 2500);
+    // REDE DE SEGURANÇA: o evento de rolagem só é disparado quando o navegador
+    // desenha o quadro. Em aba de fundo, janela minimizada ou navegador
+    // embutido ele não vem, e sem isto o conteúdo ficaria invisível para
+    // sempre. A conferência periódica é barata e se desliga sozinha quando
+    // não sobra ninguém na fila.
+    clearInterval(revealTimer);
+    revealTimer = setInterval(() => {
+      revelarVisiveis();
+      if (!pendentes.length) clearInterval(revealTimer);
+    }, 400);
   }
 
   /** Torna visível tudo que ainda estiver escondido pela animação. */
   function mostrarTudo() {
     document.querySelectorAll(".reveal:not(.is-visible), .c-reveal:not(.is-visible)")
       .forEach((el) => el.classList.add("is-visible"));
+    pendentes = [];
   }
 
+  /** Entra na fila de espera e já confere se o elemento nasce visível. */
   function observeReveal(els) {
-    els.forEach((el) => {
-      if (revealIO) revealIO.observe(el);
-      else el.classList.add("is-visible");
-    });
+    els.forEach((el) => { if (!el.classList.contains("is-visible")) pendentes.push(el); });
+    revelarVisiveis();
   }
 
   /** Entrada em cascata: cada card espera um pouquinho mais que o anterior. */

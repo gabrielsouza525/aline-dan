@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Great+Vibes&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=71" />
+  <link rel="stylesheet" href="styles.css?v=73" />
 </head>
 <body>
   <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
@@ -30,7 +30,7 @@
         <div class="auth-area" id="authArea">
           <a href="login.html" class="btn btn-ghost btn-sm">Entrar</a>
         </div>
-        <a href="#agendar" class="btn btn-primary btn-sm">Agendar</a>
+        <a href="agendar.html" class="btn btn-primary btn-sm">Agendar</a>
       </div>
     </div>
 
@@ -51,7 +51,7 @@
 
         <div class="nav-aside">
           <p class="nav-desc">Cabelo, coloração, unhas, cílios, sobrancelha e maquiagem — dez especialistas na Vila São Paulo, em Araçatuba.</p>
-          <a href="#agendar" class="btn btn-primary">Agendar horário</a>
+          <a href="agendar.html" class="btn btn-primary">Agendar horário</a>
           <ul class="nav-mini">
             <li><a href="https://instagram.com" target="_blank" rel="noopener">@alinedanespacolounge</a></li>
             <li><a href="https://wa.me/5518996655263" target="_blank" rel="noopener">WhatsApp</a></li>
@@ -83,7 +83,7 @@
           <span>Cabelo</span><span>Unhas</span><span>Cílios</span><span>Sobrancelha</span><span>Maquiagem</span>
         </p>
         <div class="hero-ctas">
-          <a href="#agendar" class="btn btn-pill-solid">Agendar online</a>
+          <a href="agendar.html" class="btn btn-pill-solid">Agendar online</a>
           <a href="#serviços" class="btn btn-pill-outline">Ver serviços</a>
         </div>
         <p class="hero-slot">
@@ -174,115 +174,16 @@
     </section>
 
     <!-- ============ 04 · AGENDAMENTO ============ -->
+    <!-- ============ 04 · CHAMADA PARA AGENDAR ============ -->
     <section class="section section-booking" id="agendar">
       <div class="container">
-        <header class="section-head is-centered reveal">
+        <div class="cta-agendar reveal">
           <p class="eyebrow" data-num="04">Agendamento online</p>
           <h2>Reserve seu horário</h2>
-          <p class="section-sub">Quatro passos e pronto — sem telefone, sem espera.</p>
-        </header>
-
-        <div class="booking-card reveal">
-          <ol class="steps" id="stepsIndicator" aria-label="Progresso do agendamento">
-            <li class="step-item is-current" data-step-dot="1"><span class="step-dot">1</span><span class="step-label">Serviço</span></li>
-            <li class="step-item" data-step-dot="2"><span class="step-dot">2</span><span class="step-label">Profissional</span></li>
-            <li class="step-item" data-step-dot="3"><span class="step-dot">3</span><span class="step-label">Data e hora</span></li>
-            <li class="step-item" data-step-dot="4"><span class="step-dot">4</span><span class="step-label">Seus dados</span></li>
-          </ol>
-          <p class="steps-count" id="stepsCount">Etapa 1 de 4</p>
-
-          <form id="bookingForm" novalidate>
-            <!-- Etapa 1 -->
-            <fieldset class="step-panel" data-step="1">
-              <legend class="panel-title">Qual serviço você deseja?</legend>
-              <div class="cat-chips" id="bookingCats" role="group" aria-label="Categorias de serviços"></div>
-              <div class="carousel">
-                <button type="button" class="carousel-btn" data-carousel-prev="serviceOptions" aria-label="Serviços anteriores">
-                  <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
-                </button>
-                <div class="carousel-track" id="serviceOptions" role="radiogroup" aria-label="Serviços disponíveis"></div>
-                <button type="button" class="carousel-btn" data-carousel-next="serviceOptions" aria-label="Próximos serviços">
-                  <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
-                </button>
-              </div>
-              <p class="svc-selected-hint" id="svcSelectedHint" aria-live="polite" hidden></p>
-              <p class="field-error" id="errService" role="alert" hidden>Escolha um serviço para continuar.</p>
-            </fieldset>
-
-            <!-- Etapa 2 -->
-            <fieldset class="step-panel" data-step="2" hidden>
-              <legend class="panel-title">Com quem você quer ser atendida?</legend>
-              <div class="carousel">
-                <button type="button" class="carousel-btn" data-carousel-prev="proOptions" aria-label="Profissionais anteriores">
-                  <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
-                </button>
-                <div class="carousel-track" id="proOptions" role="radiogroup" aria-label="Profissionais disponíveis"></div>
-                <button type="button" class="carousel-btn" data-carousel-next="proOptions" aria-label="Próximas profissionais">
-                  <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
-                </button>
-              </div>
-              <p class="field-error" id="errPro" role="alert" hidden>Escolha uma profissional para continuar.</p>
-            </fieldset>
-
-            <!-- Etapa 3 -->
-            <fieldset class="step-panel" data-step="3" hidden>
-              <legend class="panel-title">Escolha o melhor dia e horário</legend>
-              <p class="panel-hint">Atendemos de terça a sábado, das 08h às 18h.</p>
-              <div class="date-scroller" id="dateScroller" role="radiogroup" aria-label="Datas disponíveis"></div>
-              <h3 class="slots-title">Horários disponíveis <span id="slotsDateLabel"></span></h3>
-              <div class="slots-box" id="slotsGrid" role="radiogroup" aria-label="Horários disponíveis"></div>
-              <p class="slots-legend">
-                <span class="legend-item"><span class="legend-swatch legend-free"></span>Livre</span>
-                <span class="legend-item"><span class="legend-swatch legend-taken"></span>Ocupado</span>
-              </p>
-              <p class="field-error" id="errSlot" role="alert" hidden>Escolha um dia e um horário para continuar.</p>
-            </fieldset>
-
-            <!-- Etapa 4 -->
-            <fieldset class="step-panel" data-step="4" hidden>
-              <legend class="panel-title">Confirme seus dados</legend>
-              <div class="summary-box" id="summaryBox" aria-live="polite"></div>
-              <div class="form-fields">
-                <div class="form-field">
-                  <label for="clientName">Seu nome <span class="req" aria-hidden="true">*</span></label>
-                  <input type="text" id="clientName" name="clientName" autocomplete="name" required minlength="3" placeholder="Ex.: Ana Paula Souza" />
-                  <p class="field-error" id="errName" role="alert" hidden>Informe seu nome completo (mínimo 3 letras).</p>
-                </div>
-                <div class="form-field">
-                  <label for="clientPhone">WhatsApp <span class="req" aria-hidden="true">*</span></label>
-                  <input type="tel" id="clientPhone" name="clientPhone" autocomplete="tel" inputmode="numeric" required placeholder="(18) 99999-9999" />
-                  <p class="field-hint">Usamos apenas para confirmar ou avisar sobre o seu horário.</p>
-                  <p class="field-error" id="errPhone" role="alert" hidden>Informe um telefone válido com DDD.</p>
-                </div>
-              </div>
-            </fieldset>
-
-            <p class="booking-policy">Precisando mudar, você cancela ou remarca pela sua conta até <strong>4 horas antes</strong> do horário.</p>
-
-            <div class="booking-nav">
-              <button type="button" class="btn btn-ghost" id="btnBack" hidden>Voltar</button>
-              <button type="button" class="btn btn-primary" id="btnNext">Continuar</button>
-              <button type="submit" class="btn btn-primary" id="btnSubmit" hidden>
-                <span class="btn-label">Confirmar agendamento</span>
-                <span class="btn-spinner" aria-hidden="true"></span>
-              </button>
-            </div>
-          </form>
-
-          <!-- Sucesso -->
-          <div class="booking-success" id="bookingSuccess" hidden tabindex="-1">
-            <div class="success-icon" aria-hidden="true">
-              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-            </div>
-            <h3>Horário confirmado</h3>
-            <p>Guardamos os detalhes aqui embaixo. Até lá!</p>
-            <div class="summary-box" id="successSummary"></div>
-            <div class="success-actions">
-              <a href="#" class="btn btn-whatsapp" id="btnWhatsApp" target="_blank" rel="noopener">Avisar no WhatsApp</a>
-              <a href="minha-conta.html" class="btn btn-ghost">Meus horários</a>
-              <button type="button" class="btn btn-ghost" id="btnNewBooking">Novo agendamento</button>
-            </div>
-          </div>
+          <p class="cta-sub">Quatro passos e pronto — sem telefone, sem espera. Escolha o serviço, a profissional e o horário que couber no seu dia.</p>
+          <p class="cta-livre" id="ctaProximo" hidden></p>
+          <a href="agendar.html" class="btn btn-primary btn-lg">Agendar online</a>
+          <p class="cta-nota">Cancele ou remarque pela sua conta até 4 horas antes.</p>
         </div>
       </div>
     </section>
@@ -380,7 +281,7 @@
     </div>
   </footer>
 
-  <script src="common.js?v=71"></script>
-  <script src="app.js?v=71"></script>
+  <script src="common.js?v=73"></script>
+  <script src="app.js?v=73"></script>
 </body>
 </html>

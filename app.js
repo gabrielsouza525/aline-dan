@@ -54,6 +54,7 @@
 
   function updateAuthUI() {
     const area = $("#authArea");
+    if (!area) return;
     if (state.user) {
       const firstName = state.user.name.split(" ")[0];
       const adminLink = state.user.role === "admin"
@@ -80,6 +81,7 @@
     if (existing) existing.remove();
     if (state.user) return;
     const panel = document.querySelector('[data-step="4"]');
+    if (!panel) return;             // sem formulário, não há onde avisar
     const note = document.createElement("div");
     note.id = "loginRequiredNote";
     note.className = "login-required-note";
@@ -173,7 +175,7 @@
               (restam > 0 ? '<li class="is-more">+' + restam + " outros</li>" : "") + "</ul>" +
             '<p class="svc-range"><span>' + r.count + (r.count === 1 ? " serviço" : " serviços") + "</span>" +
               '<strong>' + brl(r.min) + (r.max > r.min ? " – " + brl(r.max) : "") + "</strong></p>" +
-            '<a href="#agendar" class="btn btn-ghost btn-sm" data-book-cat="' + escapeHTML(cat) + '">Agendar ' + escapeHTML(cat.toLowerCase()) + "</a>" +
+            '<a href="agendar.html?cat=' + encodeURIComponent(cat) + '" class="btn btn-ghost btn-sm" data-book-cat="' + escapeHTML(cat) + '">Agendar ' + escapeHTML(cat.toLowerCase()) + "</a>" +
           "</div>" +
         "</article>"
       );
@@ -667,6 +669,7 @@
   function restorePendingBooking() {
     const pending = takePendingBooking();
     if (!pending || !pending.serviceId) return;
+    if (!$("#bookingForm")) return; // a escolha fica guardada para a página certa
 
     state.serviceId = pending.serviceId;
     state.proId = pending.proId;
@@ -685,12 +688,14 @@
     } else if (state.serviceId && state.proId) {
       goToStep(3);
     }
-    $("#agendar").scrollIntoView();
+    const alvo = $("#agendar") || $("#bookingForm");
+    if (alvo) alvo.scrollIntoView();
   }
 
   // ---------- Meus agendamentos (resumo na página inicial) ----------
   async function renderMyBookings() {
     const wrap = $("#myBookings");
+    if (!wrap) return;              // só existe na home
 
     if (!state.user) {
       wrap.innerHTML =
@@ -718,7 +723,7 @@
           svgIcon("calendar") +
           "<p><strong>Você ainda não tem horários marcados.</strong></p>" +
           "<p>Que tal reservar um momento para se cuidar?</p>" +
-          '<a href="#agendar" class="btn btn-primary btn-sm">Agendar agora</a>' +
+          '<a href="agendar.html" class="btn btn-primary btn-sm">Agendar agora</a>' +
         "</div>";
       return;
     }
@@ -884,6 +889,7 @@
   function setupMenu() {
     const toggle = $("#menuToggle");
     const nav = $("#mainNav");
+    if (!toggle || !nav) return;    // páginas internas não têm o menu em cortina
     const header = document.getElementById("siteHeader");
     const palavra = toggle.querySelector(".menu-word");
 
@@ -932,45 +938,20 @@
   }
 
   // ---------- Inicialização ----------
-  async function init() {
-    await loadCatalog(); // serviços vêm do banco
-    initReveal();
-    renderServicesShowcase();
-    renderTeamSection();
-
-    // ?servico=<id> vem de servicos.html: já chega com a escolha feita
-    const pedido = new URLSearchParams(location.search).get("servico");
-    const escolhido = pedido && SERVICES.find((s) => s.id === pedido);
-    if (escolhido) {
-      state.serviceId = escolhido.id;
-      bookingFilter = escolhido.category;
-    }
+  /** Liga o formulário de 4 passos. Só existe em agendar.html. */
+  function setupBooking() {
+    const form = $("#bookingForm");
+    if (!form) return;
 
     renderServiceOptions();
     renderProOptions();
-    setupCarousels();
-    setupHeaderScroll();
-    setupMenu();
 
-    // Filtros de categoria (vitrine e etapa 1)
     $("#bookingCats").addEventListener("click", (ev) => {
       const chip = ev.target.closest("[data-cat]");
       if (!chip) return;
       bookingFilter = chip.dataset.cat;
       renderServiceOptions();
     });
-    // "Agendar <categoria>" nos blocos da vitrine: já abre a etapa 1 filtrada
-    $("#svcShowcase").addEventListener("click", (ev) => {
-      const btn = ev.target.closest("[data-book-cat]");
-      if (!btn) return;
-      bookingFilter = btn.dataset.bookCat;
-      const primeiro = SERVICES.find((s) => s.category === bookingFilter);
-      if (primeiro) state.serviceId = primeiro.id;
-      renderServiceOptions();
-      hideError("errService");
-    });
-
-    const form = $("#bookingForm");
 
     form.addEventListener("change", (ev) => {
       const input = ev.target;
@@ -985,12 +966,10 @@
     });
     $("#btnBack").addEventListener("click", () => goToStep(state.step - 1));
     form.addEventListener("submit", submitBooking);
-
     $("#btnNewBooking").addEventListener("click", resetBookingForm);
-    $("#myBookings").addEventListener("click", handleCancelClick);
 
-    attachPhoneMask($("#clientPhone"));
     const phone = $("#clientPhone");
+    attachPhoneMask(phone);
     phone.addEventListener("blur", () => {
       const digits = phone.value.replace(/\D/g, "");
       if (digits.length > 0 && (digits.length < 10 || digits.length > 11)) {
@@ -1005,6 +984,51 @@
     });
 
     goToStep(1);
+  }
+
+  /** Partes que só existem na home. */
+  function setupHome() {
+    const vitrine = $("#svcShowcase");
+    if (vitrine) {
+      renderServicesShowcase();
+      // "Agendar <categoria>" leva para a página do agendamento já filtrada
+      vitrine.addEventListener("click", (ev) => {
+        const btn = ev.target.closest("[data-book-cat]");
+        if (!btn) return;
+        ev.preventDefault();
+        location.href = "agendar.html?cat=" + encodeURIComponent(btn.dataset.bookCat);
+      });
+    }
+    renderTeamSection();
+    const meus = $("#myBookings");
+    if (meus) meus.addEventListener("click", handleCancelClick);
+  }
+
+  async function init() {
+    await loadCatalog(); // serviços vêm do banco
+    initReveal();
+
+    // O que chega pela URL: ?servico=<id> de servicos.html, ?cat=<nome> da vitrine
+    const params = new URLSearchParams(location.search);
+    const pedido = params.get("servico");
+    const escolhido = pedido && SERVICES.find((s) => s.id === pedido);
+    if (escolhido) {
+      state.serviceId = escolhido.id;
+      bookingFilter = escolhido.category;
+    } else {
+      const cat = params.get("cat");
+      if (cat && serviceCategories().includes(cat)) {
+        bookingFilter = cat;
+        const primeiro = SERVICES.find((s) => s.category === cat);
+        if (primeiro) state.serviceId = primeiro.id;
+      }
+    }
+
+    setupHome();
+    setupBooking();
+    setupCarousels();
+    setupHeaderScroll();
+    setupMenu();
 
     // Sessão atual + dados que dependem do servidor
     const res = await api.me();

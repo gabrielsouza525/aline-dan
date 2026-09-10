@@ -17,7 +17,7 @@
   /** Destinos permitidos (evita redirecionamento para fora do site). */
   function nextURL(user) {
     switch (params.get("next")) {
-      case "agendar": return "index.html#agendar";
+      case "agendar": return "agendar.html";
       case "inicio":  return "index.html";
       case "admin":   return "admin.html";
       default:

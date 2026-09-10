@@ -71,8 +71,9 @@ UTC numa hospedagem) e a agenda inteira sai errada.
 
 | Pasta / arquivo | O que é |
 |---|---|
-| `index.html`, `app.js` | Página principal: vitrine por categoria, equipe e agendamento em 4 passos |
+| `index.html`, `app.js` | Página principal: vitrine, equipe e chamada para o agendamento |
 | `servicos.html`, `servicos.js` | Catálogo completo, com busca e filtro por categoria |
+| `agendar.html` | Página do agendamento em 4 passos (usa o mesmo `app.js`) |
 | `minha-conta.html`, `conta.js` | Área da cliente: agendamentos, remarcar, dados, senha |
 | `admin.html`, `admin.js` | Painel da Aline: agenda, balcão, bloqueios, serviços, relatório |
 | `login.html`, `login.js` | Entrar e criar conta |

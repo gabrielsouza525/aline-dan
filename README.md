@@ -70,6 +70,23 @@ php setup/instalar.php --admin=aline@exemplo.com
 
 Ele pede a senha na hora, para ela não ficar no histórico do terminal.
 
+### Hospedagem sem terminal
+
+O mesmo instalador roda pelo navegador. Como ele cria conta de administradora,
+vem **desligado**: só responde se `SETUP_TOKEN` estiver preenchido em
+`api/config.php`.
+
+1. Pelo gerenciador de arquivos da hospedagem, abra `api/config.php` e escreva
+   uma frase secreta em `SETUP_TOKEN`.
+2. Abra `https://seusite.com.br/setup/instalar.php?chave=SUA_FRASE`. A página
+   confere o banco, popula o catálogo se estiver vazio e traz um formulário
+   para criar a administradora.
+3. **Volte ao `config.php` e esvazie o `SETUP_TOKEN`.** Enquanto ele tiver
+   valor, quem souber o endereço e a chave troca a senha da administradora.
+
+O `setup/.htaccess` fecha o resto da pasta: os `.sql` e o cron não são
+baixáveis pela web, só o `instalar.php` responde.
+
 Os e-mails (confirmação de cadastro, aviso de agendamento, lembrete, redefinição
 de senha) saem em modo `file` por padrão: em vez de enviar, ficam salvos em
 `storage/outbox` para você conferir. Para enviar de verdade, preencha os dados de

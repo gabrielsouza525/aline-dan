@@ -48,6 +48,14 @@ const SMTP_USER     = '';
 const SMTP_PASS     = '';
 const SMTP_TIMEOUT  = 15;                             // segundos de espera pelo servidor
 
+// ---------- Instalador pelo navegador ----------
+// Hospedagem sem terminal? Preencha com uma frase secreta e abra
+//   https://seusite.com/setup/instalar.php?chave=ESSA_FRASE
+// para conferir o banco, popular o catálogo e criar a administradora.
+// DEIXE VAZIO quando terminar: com o token preenchido, quem souber o endereço
+// e a chave consegue trocar a senha da administradora.
+const SETUP_TOKEN = '';
+
 function db(): PDO
 {
     static $pdo = null;

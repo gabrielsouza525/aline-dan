@@ -6,6 +6,7 @@
   "use strict";
   const {
     SERVICES, PROFESSIONALS, TIME_SLOTS, CLOSED_WEEKDAYS, SALON_WHATSAPP, slotsHTML,
+    categorySummary,
     WEEKDAYS_SHORT, MONTHS_SHORT,
     svgIcon, escapeHTML, brl, priceLabel, serviceCategories,
     toISODate, fromISODate, formatDateLong,
@@ -107,21 +108,12 @@
   }
 
   // ---------- Categorias de serviço (filtros) ----------
-  const SERVICES_PAGE = 8;   // quantos serviços a vitrine mostra por vez
-  let servicesFilter = null; // vitrine: categoria escolhida
-  let servicesQuery = "";    // vitrine: texto da busca (vence a categoria)
-  let servicesShown = SERVICES_PAGE;
   let bookingFilter = null;  // etapa 1 do agendamento
 
-  /** Sem acento e em minúsculas, para "coloracao" achar "Coloração". */
-  function semAcento(s) {
-    return String(s == null ? "" : s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-  }
-
-  /** O serviço combina com a busca? Procura no nome, na descrição e na categoria. */
-  function servicoCombina(s, termos) {
-    const alvo = semAcento(s.name + " " + (s.desc || "") + " " + s.category);
-    return termos.every((t) => alvo.includes(t));
+  /** Sem acento e em minúsculas, para virar id de âncora. */
+  function slug(s) {
+    return String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
   }
 
   function categoryChipsHTML(active) {
@@ -130,122 +122,93 @@
     ).join("");
   }
 
-  // ---------- Renderização: seção de serviços ----------
-  function renderServicesSection(keepVisible) {
-    const cats = serviceCategories();
-    if (!servicesFilter || !cats.includes(servicesFilter)) servicesFilter = cats[0] || null;
+  // ---------- Vitrine: um bloco por tipo de serviço ----------
+  /**
+   * A home mostra um panorama de cada categoria, alternando foto e texto.
+   * A lista item a item vive em servicos.html — aqui o objetivo é a cliente
+   * entender o que o salão faz sem rolar 73 linhas.
+   */
+  function renderServicesShowcase() {
+    const wrap = $("#svcShowcase");
+    if (!wrap) return;
 
-    // Buscando, o texto manda: procura no catálogo inteiro e nenhuma
-    // categoria fica marcada, senão pareceria que a busca ignorou o resto.
-    const termos = semAcento(servicesQuery).split(/\s+/).filter(Boolean);
-    const buscando = termos.length > 0;
-    $("#servicesCats").innerHTML = categoryChipsHTML(buscando ? null : servicesFilter);
+    const MAX_PILLS = 5;
+    wrap.innerHTML = serviceCategories().map((cat, i) => {
+      const r = categorySummary(cat);
+      const num = String(i + 1).padStart(2, "0");
+      const pills = r.services.slice(0, MAX_PILLS)
+        .map((s) => '<li>' + escapeHTML(s.name) + "</li>").join("");
+      const restam = r.count - Math.min(MAX_PILLS, r.count);
 
-    const grid = $("#servicesGrid");
-    const lista = buscando
-      ? SERVICES.filter((s) => servicoCombina(s, termos))
-      : SERVICES.filter((s) => s.category === servicesFilter);
-    const jaVisiveis = grid.querySelectorAll(".service-card").length;
+      const visual = r.info.photo
+        ? '<img src="' + escapeHTML(r.info.photo) + '" loading="lazy" alt="' + escapeHTML(cat) + ' no Espaço Lounge" />'
+        // Sem foto ainda: painel decorativo com o ícone da categoria, para o
+        // bloco não ficar com um buraco branco.
+        : '<div class="svc-photo-holder">' + svgIcon(iconeDaCategoria(cat), "icon") +
+            "<span>foto de " + escapeHTML(cat.toLowerCase()) + "</span></div>";
 
-    if (buscando && lista.length === 0) {
-      grid.innerHTML =
-        '<p class="services-empty">Nenhum serviço encontrado para <strong>' +
-        escapeHTML(servicesQuery.trim()) + '</strong>.<br>' +
-        'Tente outra palavra ou <button type="button" class="link-inline" id="btnClearSearch">veja todos os serviços</button>.</p>';
-      const limpar = $("#btnClearSearch");
-      if (limpar) limpar.addEventListener("click", () => setServicesQuery(""));
-      renderServicesMore(0, buscando);
-      return;
-    }
+      return (
+        '<article class="svc-block reveal" id="svc-' + slug(cat) + '">' +
+          '<div class="svc-photo">' + visual + "</div>" +
+          '<div class="svc-info">' +
+            '<p class="eyebrow" data-num="' + num + '">' + escapeHTML(r.info.kicker || cat) + "</p>" +
+            "<h3>" + escapeHTML(cat) + "</h3>" +
+            '<p class="svc-desc">' + escapeHTML(r.info.desc || "") + "</p>" +
+            '<ul class="svc-pills">' + pills +
+              (restam > 0 ? '<li class="is-more">+' + restam + " outros</li>" : "") + "</ul>" +
+            '<p class="svc-range"><span>' + r.count + (r.count === 1 ? " serviço" : " serviços") + "</span>" +
+              '<strong>' + brl(r.min) + (r.max > r.min ? " – " + brl(r.max) : "") + "</strong></p>" +
+            '<a href="#agendar" class="btn btn-ghost btn-sm" data-book-cat="' + escapeHTML(cat) + '">Agendar ' + escapeHTML(cat.toLowerCase()) + "</a>" +
+          "</div>" +
+        "</article>"
+      );
+    }).join("");
 
-    grid.innerHTML = lista.slice(0, servicesShown).map((s) => (
-      '<article class="service-card reveal">' +
-        '<div class="service-icon">' + svgIcon(s.icon) + "</div>" +
-        "<h3>" + escapeHTML(s.name) + "</h3>" +
-        '<p class="service-desc">' + escapeHTML(s.desc) + "</p>" +
-        '<div class="service-meta">' +
-          '<span class="price">' + priceLabel(s) + "</span>" +
-          '<span class="duration">' + svgIcon("clock", "icon icon-sm") + s.duration + " min</span>" +
-        "</div>" +
-        '<a href="#agendar" class="btn btn-ghost btn-sm" data-book-service="' + s.id + '">Agendar</a>' +
-      "</article>"
-    )).join("");
+    const botao = $("#btnAllServices");
+    if (botao) botao.textContent = "Ver os " + SERVICES.length + " serviços";
 
-    // Cards que já estavam na tela não reanimam; só os novos entram em cascata.
-    // Durante a busca ninguém anima: a lista muda a cada tecla e a cascata
-    // deixaria a tela piscando.
-    const cards = [...grid.children];
-    if (buscando) {
-      cards.forEach((el) => el.classList.add("is-visible"));
-    } else {
-      const manter = keepVisible ? Math.min(jaVisiveis, cards.length) : 0;
-      cards.slice(0, manter).forEach((el) => el.classList.add("is-visible"));
-      staggerReveal(cards.slice(manter));
-    }
-
-    renderServicesMore(lista.length, buscando);
+    staggerReveal([...wrap.children]);
   }
 
-  /** Troca o texto da busca e redesenha a vitrine. */
-  function setServicesQuery(texto) {
-    servicesQuery = texto;
-    servicesShown = SERVICES_PAGE;
-    const campo = $("#serviceSearch");
-    if (campo && campo.value !== texto) campo.value = texto;
-    const limpar = $("#serviceSearchClear");
-    if (limpar) limpar.hidden = texto.trim() === "";
-    renderServicesSection();
-  }
-
-  /** Botão "Mostrar mais / menos" abaixo da vitrine. */
-  function renderServicesMore(total, buscando) {
-    const box = $("#servicesMore");
-    if (!box) return;
-    const mostrando = Math.min(servicesShown, total);
-
-    if (total <= SERVICES_PAGE) { box.innerHTML = ""; return; }
-
-    const restam = total - mostrando;
-    const btn = restam > 0
-      ? '<button type="button" class="btn btn-ghost" id="btnMoreServices">' +
-          "Mostrar mais " + Math.min(SERVICES_PAGE, restam) + " serviços" +
-          svgIcon("chevron-down", "icon icon-sm") +
-        "</button>"
-      : '<button type="button" class="btn btn-ghost" id="btnLessServices">Mostrar menos' +
-          svgIcon("chevron-up", "icon icon-sm") + "</button>";
-
-    const onde = buscando
-      ? 'para "' + escapeHTML(servicesQuery.trim()) + '"'
-      : "em " + escapeHTML(servicesFilter);
-    box.innerHTML =
-      '<p class="services-count">Mostrando ' + mostrando + " de " + total + " serviços " + onde + "</p>" + btn;
-
-    const mais = $("#btnMoreServices");
-    if (mais) mais.addEventListener("click", () => {
-      servicesShown += SERVICES_PAGE;
-      renderServicesSection(true);
-    });
-    const menos = $("#btnLessServices");
-    if (menos) menos.addEventListener("click", () => {
-      servicesShown = SERVICES_PAGE;
-      renderServicesSection(true);
-      $("#servicos").scrollIntoView({ behavior: "smooth", block: "start" });
-    });
+  /** O ícone que melhor representa a categoria (o mesmo do catálogo). */
+  function iconeDaCategoria(cat) {
+    const itens = SERVICES.filter((s) => s.category === cat);
+    return (itens[0] && itens[0].icon) || "sparkles";
   }
 
   // ---------- Renderização: equipe ----------
+  /** Cartão de retrato. Sem foto, mantém a mesma moldura escura com as iniciais. */
+  function teamCardHTML(p) {
+    const visual = p.photo
+      ? '<img src="' + escapeHTML(p.photo) + '" loading="lazy" alt="' + escapeHTML(p.name) + '" />'
+      : '<span class="tp-initials" aria-hidden="true">' + escapeHTML(p.initials) + "</span>";
+    return (
+      '<figure class="team-card reveal">' +
+        '<div class="team-portrait">' + visual + "</div>" +
+        "<figcaption>" +
+          "<strong>" + escapeHTML(p.name) + "</strong>" +
+          "<span>" + escapeHTML(p.role) + "</span>" +
+        "</figcaption>" +
+      "</figure>"
+    );
+  }
+
   function renderTeamSection() {
-    const grid = $("#teamGrid");
-    if (!grid) return;
-    // SUBSTITUIR .team-portrait por foto de cada profissional (3:4)
-    grid.innerHTML = PROFESSIONALS.filter((p) => p.id !== "any").map((p) => (
-      '<div class="team-card reveal">' +
-        '<div class="team-portrait" aria-hidden="true">' + escapeHTML(p.initials) + "</div>" +
-        "<strong>" + escapeHTML(p.name) + "</strong>" +
-        "<span>" + escapeHTML(p.role) + "</span>" +
-      "</div>"
-    )).join("");
-    staggerReveal([...grid.children]);
+    const wrap = $("#teamWrap");
+    if (!wrap) return;
+    const equipe = PROFESSIONALS.filter((p) => p.id !== "any");
+    const fundadora = equipe.filter((p) => p.founder);
+    const demais = equipe.filter((p) => !p.founder);
+
+    wrap.innerHTML =
+      (fundadora.length
+        ? '<h3 class="team-group reveal">Fundadora</h3>' +
+          '<div class="team-grid is-founder">' + fundadora.map(teamCardHTML).join("") + "</div>"
+        : "") +
+      '<h3 class="team-group reveal">Especialistas</h3>' +
+      '<div class="team-grid">' + demais.map(teamCardHTML).join("") + "</div>";
+
+    staggerReveal([...wrap.querySelectorAll(".reveal")]);
   }
 
   // ---------- Carrossel (serviços e profissionais) ----------
@@ -800,11 +763,9 @@
       caixa.addEventListener("click", (ev) => {
         const b = ev.target.closest("[data-nav-cat]");
         if (!b) return;
-        servicesFilter = b.dataset.navCat;
-        servicesShown = SERVICES_PAGE;
-        renderServicesSection();
         abrir(false);
-        $("#servicos").scrollIntoView({ behavior: "smooth", block: "start" });
+        const alvo = document.getElementById("svc-" + slug(b.dataset.navCat));
+        (alvo || $("#servicos")).scrollIntoView({ behavior: "smooth", block: "start" });
       });
     }
   }
@@ -813,8 +774,17 @@
   async function init() {
     await loadCatalog(); // serviços vêm do banco
     initReveal();
-    renderServicesSection();
+    renderServicesShowcase();
     renderTeamSection();
+
+    // ?servico=<id> vem de servicos.html: já chega com a escolha feita
+    const pedido = new URLSearchParams(location.search).get("servico");
+    const escolhido = pedido && SERVICES.find((s) => s.id === pedido);
+    if (escolhido) {
+      state.serviceId = escolhido.id;
+      bookingFilter = escolhido.category;
+    }
+
     renderServiceOptions();
     renderProOptions();
     setupCarousels();
@@ -822,42 +792,21 @@
     setupMenu();
 
     // Filtros de categoria (vitrine e etapa 1)
-    $("#servicesCats").addEventListener("click", (ev) => {
-      const chip = ev.target.closest("[data-cat]");
-      if (!chip) return;
-      servicesFilter = chip.dataset.cat;
-      setServicesQuery("");   // escolher categoria desfaz a busca
-    });
-
-    // Busca por serviço
-    const campoBusca = $("#serviceSearch");
-    if (campoBusca) {
-      campoBusca.addEventListener("input", () => setServicesQuery(campoBusca.value));
-      campoBusca.addEventListener("keydown", (ev) => {
-        if (ev.key === "Escape") { setServicesQuery(""); campoBusca.blur(); }
-      });
-      $("#serviceSearchClear").addEventListener("click", () => {
-        setServicesQuery("");
-        campoBusca.focus();
-      });
-    }
     $("#bookingCats").addEventListener("click", (ev) => {
       const chip = ev.target.closest("[data-cat]");
       if (!chip) return;
       bookingFilter = chip.dataset.cat;
       renderServiceOptions();
     });
-    // "Agendar este serviço" nos cards da vitrine
-    $("#servicesGrid").addEventListener("click", (ev) => {
-      const btn = ev.target.closest("[data-book-service]");
+    // "Agendar <categoria>" nos blocos da vitrine: já abre a etapa 1 filtrada
+    $("#svcShowcase").addEventListener("click", (ev) => {
+      const btn = ev.target.closest("[data-book-cat]");
       if (!btn) return;
-      const svc = SERVICES.find((s) => s.id === btn.dataset.bookService);
-      if (svc) {
-        state.serviceId = svc.id;
-        bookingFilter = svc.category;
-        renderServiceOptions();
-        hideError("errService");
-      }
+      bookingFilter = btn.dataset.bookCat;
+      const primeiro = SERVICES.find((s) => s.category === bookingFilter);
+      if (primeiro) state.serviceId = primeiro.id;
+      renderServiceOptions();
+      hideError("errService");
     });
 
     const form = $("#bookingForm");

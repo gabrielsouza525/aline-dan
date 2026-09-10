@@ -71,7 +71,8 @@ UTC numa hospedagem) e a agenda inteira sai errada.
 
 | Pasta / arquivo | O que é |
 |---|---|
-| `index.html`, `app.js` | Página principal e o fluxo de agendamento em 4 passos |
+| `index.html`, `app.js` | Página principal: vitrine por categoria, equipe e agendamento em 4 passos |
+| `servicos.html`, `servicos.js` | Catálogo completo, com busca e filtro por categoria |
 | `minha-conta.html`, `conta.js` | Área da cliente: agendamentos, remarcar, dados, senha |
 | `admin.html`, `admin.js` | Painel da Aline: agenda, balcão, bloqueios, serviços, relatório |
 | `login.html`, `login.js` | Entrar e criar conta |
@@ -83,9 +84,13 @@ UTC numa hospedagem) e a agenda inteira sai errada.
 
 ## Ainda falta
 
-- Fotos das 10 profissionais para a seção Equipe (3:4). Enquanto não chegarem, os
-  cartões mostram as iniciais — uma foto só, no meio de nove iniciais, ficaria pior
-  que nenhuma. O hero (`img/fachada.jpg`) e a seção O salão (`img/aline.jpg`) já
-  usam foto de verdade.
+- **Nove fotos de categoria** para a vitrine da home (recorte 4:5, ~1000x1250):
+  cabelo, mãos e pés, cílios, unhas artificiais, unhas em gel, sobrancelha,
+  penteados, maquiagem e depilação. Ponha os arquivos em `img/servicos/` e
+  aponte o caminho em `CATEGORY_INFO` (`common.js`) — o bloco troca sozinho o
+  painel decorativo pela foto.
+- **Nove retratos das profissionais** (3:4). Aline já usa foto; as outras mostram
+  as iniciais na mesma moldura escura, então a seção não parece quebrada. Para
+  ligar, acrescente `photo: img/equipe/nome.jpg` na lista `PROFESSIONALS`.
 - Substituir os 5 depoimentos de demonstração, marcados com `data-demo="1"` no
   `index.html`, por avaliações verdadeiras antes de publicar.

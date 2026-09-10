@@ -10,7 +10,7 @@ window.AD = (function () {
 
   // Equipe real (fonte: trinks.com/espaco-lounge-aline-dan)
   const PROFESSIONALS = [
-    { id: "aline",     name: "Aline",           role: "Cabeleireira",  initials: "Al" },
+    { id: "aline",     name: "Aline Dan",       role: "Fundadora · Cabeleireira", initials: "Al", photo: "img/aline.jpg", founder: true },
     { id: "amanda",    name: "Amanda",          role: "Cabeleireira",  initials: "Am" },
     { id: "sebastian", name: "Sebastian",       role: "Cabeleireiro",  initials: "Se" },
     { id: "dayana",    name: "Dayana",          role: "Especialista",  initials: "Da" },
@@ -22,6 +22,74 @@ window.AD = (function () {
     { id: "raissa",    name: "Raissa",          role: "Manicure",      initials: "Ra" },
     { id: "any",       name: "Sem preferência", role: "Primeira profissional disponível", initials: "✦" },
   ];
+
+  /**
+   * Como cada categoria se apresenta na vitrine da home.
+   * "photo" é o caminho da foto (recorte 4:5, ~1000x1250). Enquanto estiver
+   * vazio o bloco mostra um painel decorativo no lugar — para ligar a foto,
+   * basta pôr o arquivo em img/servicos/ e escrever o caminho aqui.
+   */
+  const CATEGORY_INFO = {
+    "Cabelo": {
+      kicker: "Corte, cor e tratamento",
+      desc: "Do corte ao loiro dos sonhos: coloração, mechas, progressiva, botox e tratamentos de reconstrução — sempre terminando com escova e finalização.",
+      photo: "",
+    },
+    "Mãos e Pés": {
+      kicker: "Manicure e pedicure",
+      desc: "Esmaltação, spa dos pés e cutilágem feitos com material esterilizado, no tempo que o cuidado pede.",
+      photo: "",
+    },
+    "Cílios": {
+      kicker: "Extensão e manutenção",
+      desc: "Volume brasileiro, russo, egípcio e 4D, com manutenção em dia para o olhar continuar levantado.",
+      photo: "",
+    },
+    "Unhas Artificiais": {
+      kicker: "Alongamento e blindagem",
+      desc: "Fibra, gel e blindagem para unhas que aguentam a rotina sem perder o acabamento.",
+      photo: "",
+    },
+    "Unhas em Gel": {
+      kicker: "Banho e esmaltação",
+      desc: "Banho em gel e esmaltação que atravessam semanas com o brilho do primeiro dia.",
+      photo: "",
+    },
+    "Sobrancelha": {
+      kicker: "Design e henna",
+      desc: "Design que respeita o formato do seu rosto, com henna quando pede mais preenchimento.",
+      photo: "",
+    },
+    "Penteados": {
+      kicker: "Festa e dia a dia",
+      desc: "Baby liss, cachos e presos para casamento, formatura ou aquele jantar que pede caprichão.",
+      photo: "",
+    },
+    "Maquiagem": {
+      kicker: "Social e madrinha",
+      desc: "Maquiagem social com cílios incluídos, pensada para durar a festa inteira nas fotos.",
+      photo: "",
+    },
+    "Depilação": {
+      kicker: "Cera",
+      desc: "Depilação facial com cera, rápida e no capricho.",
+      photo: "",
+    },
+  };
+
+  /** Resumo de uma categoria: quantos serviços e de quanto a quanto. */
+  function categorySummary(cat) {
+    const itens = SERVICES.filter((s) => s.category === cat);
+    const precos = itens.map((s) => s.price);
+    return {
+      category: cat,
+      services: itens,
+      count: itens.length,
+      min: precos.length ? Math.min.apply(null, precos) : 0,
+      max: precos.length ? Math.max.apply(null, precos) : 0,
+      info: CATEGORY_INFO[cat] || { kicker: "", desc: "", photo: "" },
+    };
+  }
 
   // Terça a sábado, 08h às 18h — horários a cada 10 minutos
   const TIME_SLOTS = [
@@ -288,7 +356,7 @@ window.AD = (function () {
     SERVICES, PROFESSIONALS, TIME_SLOTS, CLOSED_WEEKDAYS, SALON_WHATSAPP,
     SLOT_STEP, OPEN_MIN, CLOSING_MIN, GRID_HOURS, slotsHTML,
     ICONS, WEEKDAYS_SHORT, MONTHS_SHORT,
-    svgIcon, escapeHTML, brl, priceLabel, serviceCategories,
+    svgIcon, escapeHTML, brl, priceLabel, serviceCategories, CATEGORY_INFO, categorySummary,
     toISODate, fromISODate, formatDateLong,
     apiRequest, api, loadCatalog, showToast, setLoading, maskPhone, attachPhoneMask,
     setupPasswordToggles, savePendingBooking, takePendingBooking,

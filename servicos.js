@@ -6,7 +6,7 @@
   "use strict";
   const {
     SERVICES, loadCatalog, svgIcon, escapeHTML, brl,
-    priceLabel, serviceCategories,
+    priceLabel, serviceCategories, categorySummary,
   } = window.AD;
   const $ = (sel) => document.querySelector(sel);
 
@@ -39,17 +39,42 @@
     );
   }
 
+  /** Uma linha de serviço dentro do bloco da categoria. */
   function itemHTML(s) {
     return (
-      '<article class="service-card">' +
-        '<div class="service-icon">' + svgIcon(s.icon) + "</div>" +
-        "<h3>" + escapeHTML(s.name) + "</h3>" +
-        '<p class="service-desc">' + escapeHTML(s.desc || "") + "</p>" +
-        '<div class="service-meta">' +
-          '<span class="price">' + priceLabel(s) + "</span>" +
-          '<span class="duration">' + svgIcon("clock", "icon icon-sm") + s.duration + " min</span>" +
+      '<li class="cat-item">' +
+        '<span class="ci-nome">' + escapeHTML(s.name) + "</span>" +
+        '<span class="ci-desc">' + escapeHTML(s.desc || "") + "</span>" +
+        '<span class="ci-preco">' + priceLabel(s) + "</span>" +
+        '<span class="ci-dur">' + s.duration + " min</span>" +
+        '<a class="ci-btn" href="agendar.html?servico=' + encodeURIComponent(s.id) + '">Agendar</a>' +
+      "</li>"
+    );
+  }
+
+  /** Bloco de uma categoria: foto de um lado, texto e lista do outro. */
+  function blocoHTML(cat, itens) {
+    const r = categorySummary(cat);
+    const visual = r.info.photo
+      ? '<img src="' + escapeHTML(r.info.photo) + '" loading="lazy" alt="' + escapeHTML(cat) + ' no Espaço Lounge" />'
+      : '<div class="svc-photo-holder">' + svgIcon((itens[0] && itens[0].icon) || "sparkles", "icon") +
+          "<span>foto de " + escapeHTML(cat.toLowerCase()) + "</span></div>";
+    const precos = itens.map((s) => s.price);
+    const min = Math.min.apply(null, precos);
+    const max = Math.max.apply(null, precos);
+
+    return (
+      '<article class="svc-block cat-bloco">' +
+        '<div class="svc-photo">' + visual + "</div>" +
+        '<div class="svc-info">' +
+          '<p class="eyebrow">' + escapeHTML(r.info.kicker || cat) + "</p>" +
+          "<h3>" + escapeHTML(cat) + "</h3>" +
+          (r.info.desc ? '<p class="svc-desc">' + escapeHTML(r.info.desc) + "</p>" : "") +
+          '<p class="svc-range"><span>' + itens.length +
+            (itens.length === 1 ? " serviço" : " serviços") + "</span>" +
+            "<strong>" + brl(min) + (max > min ? " – " + brl(max) : "") + "</strong></p>" +
+          '<ul class="cat-lista">' + itens.map(itemHTML).join("") + "</ul>" +
         "</div>" +
-        '<a href="index.html?servico=' + encodeURIComponent(s.id) + '#agendar" class="btn btn-ghost btn-sm">Agendar</a>' +
       "</article>"
     );
   }
@@ -79,19 +104,13 @@
     contador.textContent = lista.length + (lista.length === 1 ? " serviço" : " serviços") +
       (buscando ? ' para "' + busca.trim() + '"' : (filtro === TODOS ? "" : " em " + filtro));
 
-    // Sem categoria escolhida a lista ganha subtítulos, senão vira um paredão
-    const agrupar = !buscando && filtro === TODOS;
-    if (!agrupar) {
-      alvo.innerHTML = '<div class="services-grid">' + lista.map(itemHTML).join("") + "</div>";
-      return;
-    }
-    alvo.innerHTML = serviceCategories().map((c) => {
-      const itens = lista.filter((s) => s.category === c);
-      if (!itens.length) return "";
-      return '<h3 class="cat-heading" id="cat-' + encodeURIComponent(c) + '">' + escapeHTML(c) +
-        "<span>" + itens.length + "</span></h3>" +
-        '<div class="services-grid">' + itens.map(itemHTML).join("") + "</div>";
-    }).join("");
+    // Um bloco por categoria, foto e texto alternando os lados — o mesmo
+    // desenho da home. Categoria sem resultado simplesmente não aparece.
+    alvo.innerHTML = '<div class="svc-showcase">' +
+      serviceCategories().map((c) => {
+        const itens = lista.filter((s) => s.category === c);
+        return itens.length ? blocoHTML(c, itens) : "";
+      }).join("") + "</div>";
   }
 
   function setBusca(texto) {

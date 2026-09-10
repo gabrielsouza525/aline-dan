@@ -6,7 +6,7 @@
   "use strict";
   const {
     SERVICES, loadCatalog, svgIcon, escapeHTML, brl,
-    priceLabel, serviceCategories, categorySummary,
+    priceLabel, serviceCategories, categorySummary, catalogoVazio, catalogoVazioHTML,
   } = window.AD;
   const $ = (sel) => document.querySelector(sel);
 
@@ -80,6 +80,12 @@
   }
 
   function render() {
+    if (catalogoVazio()) {
+      $("#servicesCats").innerHTML = "";
+      $("#servicesCount").textContent = "";
+      $("#servicesList").innerHTML = catalogoVazioHTML();
+      return;
+    }
     $("#servicesCats").innerHTML = chipsHTML();
 
     const termos = semAcento(busca).split(/\s+/).filter(Boolean);

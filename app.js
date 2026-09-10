@@ -6,6 +6,7 @@
   "use strict";
   const {
     SERVICES, PROFESSIONALS, TIME_SLOTS, CLOSED_WEEKDAYS, SALON_WHATSAPP, slotsHTML,
+    catalogoVazio, catalogoVazioHTML,
     categorySummary,
     WEEKDAYS_SHORT, MONTHS_SHORT,
     svgIcon, escapeHTML, brl, priceLabel, serviceCategories,
@@ -154,6 +155,7 @@
   function renderServicesShowcase() {
     const wrap = $("#svcShowcase");
     if (!wrap) return;
+    if (catalogoVazio()) { wrap.innerHTML = catalogoVazioHTML(); return; }
 
     const MAX_PILLS = 5;
     wrap.innerHTML = categoriasEmDestaque().map((cat, i) => {
@@ -434,6 +436,7 @@
     $("#bookingCats").innerHTML = categoryChipsHTML(buscando ? null : bookingFilter);
 
     const track = $("#serviceOptions");
+    if (catalogoVazio()) { track.innerHTML = catalogoVazioHTML(); return; }
     const lista = buscando
       ? SERVICES.filter((s) => {
           const alvo = semAcento(s.name + " " + (s.desc || "") + " " + s.category);

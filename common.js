@@ -241,6 +241,25 @@ window.AD = (function () {
     return cats;
   }
 
+  /**
+   * O catálogo veio vazio do servidor?
+   * Acontece quando o banco tem as tabelas mas ninguém populou os serviços —
+   * a API responde 200 com uma lista vazia e a página fica muda. Melhor dizer
+   * o que houve do que deixar a tela em branco com cara de site quebrado.
+   */
+  function catalogoVazio() {
+    return SERVICES.length === 0;
+  }
+
+  function catalogoVazioHTML() {
+    return '<div class="catalogo-vazio">' +
+      svgIcon("block") +
+      "<p><strong>Nenhum serviço cadastrado.</strong></p>" +
+      "<p>O site está no ar, mas o catálogo do banco está vazio. " +
+      "Rode <code>php setup/instalar.php</code> no servidor para popular.</p>" +
+      "</div>";
+  }
+
   /** "R$ 45,00" ou "a partir de R$ 60,00". */
   function priceLabel(svc) {
     return (svc.priceFrom ? "a partir de " : "") + brl(svc.price);
@@ -360,6 +379,7 @@ window.AD = (function () {
     SLOT_STEP, OPEN_MIN, CLOSING_MIN, GRID_HOURS, slotsHTML,
     ICONS, WEEKDAYS_SHORT, MONTHS_SHORT,
     svgIcon, escapeHTML, brl, priceLabel, serviceCategories, CATEGORY_INFO, categorySummary,
+    catalogoVazio, catalogoVazioHTML,
     toISODate, fromISODate, formatDateLong,
     apiRequest, api, loadCatalog, showToast, setLoading, maskPhone, attachPhoneMask,
     setupPasswordToggles, savePendingBooking, takePendingBooking,

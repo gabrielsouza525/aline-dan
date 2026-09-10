@@ -46,7 +46,29 @@ Precisa do **XAMPP** (Apache + MariaDB + PHP 8).
    `schema.sql`, `migrate-v2.sql`, `migrate-v3.sql`, `migrate-v4.sql`.
 3. Copie `api/config.example.php` para `api/config.php` e ajuste o que precisar.
    No XAMPP padrão (root sem senha) já funciona como está.
-4. Abra `http://localhost/aline-dan/`.
+4. Rode o instalador — ele confere tudo e popula o catálogo se estiver vazio:
+
+   ```
+   php setup/instalar.php
+   ```
+
+5. Abra `http://localhost/aline-dan/`.
+
+**Publicando em hospedagem, rode o passo 4 lá também.** É o passo que evita o
+erro mais chato deste projeto: banco com as tabelas criadas e sem nenhum
+serviço. Nesse estado a API responde `200` com uma lista vazia, o site carrega
+inteiro e não mostra nada — parece PHP quebrado, e não é. O `migrate-v3.sql`
+apaga a tabela antes de inserir, então uma importação interrompida no meio
+deixa exatamente esse buraco. O `setup/servicos.sql` que o instalador usa não
+apaga nada e pode rodar quantas vezes quiser.
+
+O instalador também cria a administradora (o cadastro público só faz cliente):
+
+```
+php setup/instalar.php --admin=aline@exemplo.com
+```
+
+Ele pede a senha na hora, para ela não ficar no histórico do terminal.
 
 Os e-mails (confirmação de cadastro, aviso de agendamento, lembrete, redefinição
 de senha) saem em modo `file` por padrão: em vez de enviar, ficam salvos em

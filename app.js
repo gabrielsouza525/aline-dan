@@ -227,10 +227,23 @@
 
     cancelAnimationFrame(track._slideAnim || 0);
     clearTimeout(track._slideGuard);
+
+    // Quem pediu menos movimento no sistema não quer um deslize de 700ms:
+    // vai direto para o destino.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      track.scrollLeft = target;
+      updateCarouselButtons(track);
+      return;
+    }
+
     track.style.scrollSnapType = "none"; // o snap brigaria com a animação
     const t0 = performance.now();
-    const DUR = 480;
-    const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3); // sai rápido, assenta devagar
+    // Percurso longo pede tempo proporcional, mas com teto: arrastar por dez
+    // cartões não pode virar uma viagem.
+    const DUR = Math.min(900, 420 + Math.abs(target - start) * 0.35);
+    // Começa devagar, ganha velocidade no meio e freia no fim — mais suave
+    // que sair em disparada como antes.
+    const easeInOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
 
     const finish = () => {
       clearTimeout(track._slideGuard);
@@ -240,7 +253,7 @@
     };
     const step = (now) => {
       const p = Math.min(1, (now - t0) / DUR);
-      track.scrollLeft = start + (target - start) * easeOutCubic(p);
+      track.scrollLeft = start + (target - start) * easeInOutCubic(p);
       updateCarouselButtons(track);
       if (p < 1) {
         track._slideAnim = requestAnimationFrame(step);
@@ -687,7 +700,7 @@
   /** Entrada em cascata: cada card espera um pouquinho mais que o anterior. */
   function staggerReveal(els, stepMs) {
     els.forEach((el, i) => {
-      el.style.transitionDelay = (i % 6) * (stepMs || 55) + "ms";
+      el.style.transitionDelay = (i % 6) * (stepMs || 75) + "ms";
       el.addEventListener("transitionend", function clearDelay() {
         el.style.transitionDelay = "";
         el.removeEventListener("transitionend", clearDelay);

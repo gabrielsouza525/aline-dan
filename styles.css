@@ -67,7 +67,7 @@
      É a que usamos onde o movimento é grande e dá para reparar. */
   --ease-soft: cubic-bezier(0.4, 0.06, 0.16, 1);
   --dur: 300ms;
-  --dur-slow: 900ms;            /* entradas ao rolar a página */
+  --dur-slow: 780ms;            /* entradas ao rolar a página */
   --dur-header: 450ms;          /* troca de estado do cabeçalho */
   --header-h: 84px;
   --header-h-solid: 70px;
@@ -898,7 +898,7 @@ body.menu-open .site-header .btn-logout { color: var(--color-text-muted); }
   .carousel-btn { display: none; }
   .carousel-track { grid-auto-columns: 165px; }
 }
-.c-reveal { opacity: 0; transform: translateX(14px); transition: opacity 520ms var(--ease-soft), transform 520ms var(--ease-soft); }
+.c-reveal { opacity: 0; transform: translateX(26px); transition: opacity 620ms var(--ease-soft), transform 620ms var(--ease-soft); }
 .c-reveal.is-visible { opacity: 1; transform: none; }
 
 /* Cartões de opção */
@@ -1503,9 +1503,10 @@ body.menu-open .site-header .btn-logout { color: var(--color-text-muted); }
 /* ============================================================
    ANIMAÇÃO DE ENTRADA
    ============================================================ */
-/* Curso curto e tempo longo: o elemento parece assentar, não saltar. */
+/* O que se enxerga é o percurso, não o cronômetro: 14px em 900ms ficou tão
+   sutil que parecia não ter animação. 24px numa curva macia dá para ver. */
 .reveal {
-  opacity: 0; transform: translateY(14px);
+  opacity: 0; transform: translateY(24px);
   transition: opacity var(--dur-slow) var(--ease-soft), transform var(--dur-slow) var(--ease-soft);
 }
 .reveal.is-visible { opacity: 1; transform: none; }

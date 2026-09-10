@@ -183,7 +183,7 @@
       ? '<img src="' + escapeHTML(p.photo) + '" loading="lazy" alt="' + escapeHTML(p.name) + '" />'
       : '<span class="tp-initials" aria-hidden="true">' + escapeHTML(p.initials) + "</span>";
     return (
-      '<figure class="team-card">' +
+      '<figure class="team-card c-reveal">' +
         '<div class="team-portrait">' + visual + "</div>" +
         "<figcaption>" +
           "<strong>" + escapeHTML(p.name) + "</strong>" +
@@ -201,6 +201,7 @@
     const equipe = PROFESSIONALS.filter((p) => p.id !== "any");
     const ordenada = equipe.filter((p) => p.founder).concat(equipe.filter((p) => !p.founder));
     track.innerHTML = ordenada.map(teamCardHTML).join("");
+    staggerReveal([...track.children], 90);
     updateCarouselButtons(track);
   }
 

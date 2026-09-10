@@ -178,12 +178,12 @@
 
   // ---------- Renderização: equipe ----------
   /** Retrato com o nome embaixo. Sem foto, a moldura escura fica com as iniciais. */
-  function teamCardHTML(p) {
+  function teamCardHTML(p, clone) {
     const visual = p.photo
       ? '<img src="' + escapeHTML(p.photo) + '" loading="lazy" alt="' + escapeHTML(p.name) + '" />'
       : '<span class="tp-initials" aria-hidden="true">' + escapeHTML(p.initials) + "</span>";
     return (
-      '<figure class="team-card c-reveal">' +
+      '<figure class="team-card"' + (clone ? ' aria-hidden="true"' : "") + ">" +
         '<div class="team-portrait">' + visual + "</div>" +
         "<figcaption>" +
           "<strong>" + escapeHTML(p.name) + "</strong>" +
@@ -193,16 +193,117 @@
     );
   }
 
+  /**
+   * Carrossel da equipe com os parâmetros do Mèche Salon, medidos no site
+   * deles: 600ms na curva "ease", 1/2/3 cartões conforme a largura, 4px de
+   * respiro, giro infinito e avanço automático a cada 4s que não para quando
+   * a pessoa mexe.
+   */
+  const EQUIPE = {
+    VELOCIDADE: 600,
+    ESPERA: 4000,
+    GAP: 4,
+    // "ease" do CSS é exatamente esta curva
+    curva: (t) => {
+      // aproxima cubic-bezier(0.25, 0.1, 0.25, 1) por Newton no eixo x
+      let x = t;
+      for (let i = 0; i < 5; i++) {
+        const cx = 3 * 0.25, bx = 3 * (0.25 - 0.25) - cx, ax = 1 - cx - bx;
+        const fx = ((ax * x + bx) * x + cx) * x - t;
+        const dx = (3 * ax * x + 2 * bx) * x + cx;
+        if (Math.abs(dx) < 1e-6) break;
+        x -= fx / dx;
+      }
+      const cy = 3 * 0.1, by = 3 * (1 - 0.1) - cy, ay = 1 - cy - by;
+      return ((ay * x + by) * x + cy) * x;
+    },
+  };
+
   function renderTeamSection() {
     const track = $("#teamTrack");
     if (!track) return;
-    // A fundadora abre a fila; o papel dela já diz quem é, então não precisa
-    // de um grupo à parte como antes.
+    // A fundadora abre a fila; o papel dela já diz quem é.
     const equipe = PROFESSIONALS.filter((p) => p.id !== "any");
     const ordenada = equipe.filter((p) => p.founder).concat(equipe.filter((p) => !p.founder));
-    track.innerHTML = ordenada.map(teamCardHTML).join("");
-    staggerReveal([...track.children], 90);
-    updateCarouselButtons(track);
+
+    // Giro infinito sem emenda: três voltas idênticas, começando na do meio.
+    // Ao passar de uma volta, o scroll salta de volta sem animação — invisível.
+    // map passa o índice no 2º argumento — sem a seta, todo cartão a partir do
+    // segundo viraria "cópia" e sumiria do leitor de tela.
+    const uma = ordenada.map((p) => teamCardHTML(p)).join("");
+    const copia = ordenada.map((p) => teamCardHTML(p, true)).join("");
+    track.innerHTML = copia + uma + copia;
+    track._equipeTamanho = ordenada.length;
+
+    setupTeamCarousel(track);
+  }
+
+  function setupTeamCarousel(track) {
+    const total = track._equipeTamanho;
+    const semMovimento = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    const passo = () => {
+      const card = track.children[0];
+      return card ? card.getBoundingClientRect().width + EQUIPE.GAP : 0;
+    };
+    const voltaW = () => passo() * total;
+
+    /** Mantém o scroll dentro da volta do meio. Sem animação: ninguém vê. */
+    const normalizar = () => {
+      const w = voltaW();
+      if (!w) return;
+      if (track.scrollLeft >= w * 2) track.scrollLeft -= w;
+      else if (track.scrollLeft < w * 0.5) track.scrollLeft += w;
+    };
+
+    const irPara = (destino) => {
+      if (semMovimento) { track.scrollLeft = destino; normalizar(); return; }
+      cancelAnimationFrame(track._eqAnim || 0);
+      const inicio = track.scrollLeft;
+      const t0 = performance.now();
+      const passoQuadro = (agora) => {
+        const p = Math.min(1, (agora - t0) / EQUIPE.VELOCIDADE);
+        track.scrollLeft = inicio + (destino - inicio) * EQUIPE.curva(p);
+        if (p < 1) track._eqAnim = requestAnimationFrame(passoQuadro);
+        else { track.scrollLeft = destino; normalizar(); }
+      };
+      track._eqAnim = requestAnimationFrame(passoQuadro);
+    };
+
+    const andar = (dir) => irPara(track.scrollLeft + dir * passo());
+
+    // Começa na volta do meio. Ler a largura já força o cálculo do layout, então
+    // dá para posicionar na hora; o quadro seguinte é só rede, para o caso de a
+    // medida ainda vir zerada (fonte ou imagem pendente).
+    const irParaOMeio = () => { const w = voltaW(); if (w) track.scrollLeft = w; };
+    irParaOMeio();
+    requestAnimationFrame(irParaOMeio);
+
+    document.querySelectorAll("[data-team-prev]").forEach((b) =>
+      b.addEventListener("click", () => andar(-1)));
+    document.querySelectorAll("[data-team-next]").forEach((b) =>
+      b.addEventListener("click", () => andar(1)));
+
+    // Arrastar com o dedo também precisa respeitar a volta
+    track.addEventListener("scroll", () => {
+      clearTimeout(track._eqFim);
+      track._eqFim = setTimeout(normalizar, 120);
+    }, { passive: true });
+
+    // Avanço automático. O Mèche não pausa nem no hover nem ao clicar; só não
+    // ligamos para quem pediu menos movimento no sistema, e paramos com a aba
+    // escondida para o relógio não acumular saltos.
+    if (semMovimento) return;
+    clearInterval(track._eqTimer);
+    const ligar = () => {
+      clearInterval(track._eqTimer);
+      track._eqTimer = setInterval(() => andar(1), EQUIPE.ESPERA);
+    };
+    ligar();
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) clearInterval(track._eqTimer);
+      else ligar();
+    });
   }
 
   // ---------- Carrossel (serviços e profissionais) ----------

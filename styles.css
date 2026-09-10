@@ -776,11 +776,13 @@ body.menu-open .site-header .btn-logout { color: var(--color-text-muted); }
 .section-team .section-sub { color: rgba(255, 255, 255, 0.62); }
 
 .team-carousel { margin-top: var(--space-6); }
+/* 1 / 2 / 3 cartões com 4px de respiro — os mesmos cortes do Mèche */
 .team-carousel .carousel-track {
-  grid-auto-columns: 260px; gap: var(--space-5); padding-bottom: var(--space-3);
-  scroll-snap-type: x mandatory;
+  grid-auto-columns: 100%; gap: 4px; padding-bottom: var(--space-3);
+  scroll-snap-type: none;
 }
-@media (max-width: 560px) { .team-carousel .carousel-track { grid-auto-columns: 210px; } }
+@media (min-width: 768px) { .team-carousel .carousel-track { grid-auto-columns: calc((100% - 4px) / 2); } }
+@media (min-width: 992px) { .team-carousel .carousel-track { grid-auto-columns: calc((100% - 8px) / 3); } }
 .team-carousel .carousel-btn {
   border-color: rgba(255, 255, 255, 0.28); background: transparent; color: #fff;
 }
@@ -795,7 +797,7 @@ body.menu-open .site-header .btn-logout { color: var(--color-text-muted); }
 }
 .team-portrait img {
   width: 100%; height: 100%; object-fit: cover; display: block;
-  transition: transform 1100ms var(--ease-soft);
+  transition: transform 400ms ease;   /* mesmo tempo e curva do Mèche */
 }
 .team-card:hover .team-portrait img { transform: scale(1.045); }
 .tp-initials {

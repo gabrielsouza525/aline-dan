@@ -128,12 +128,27 @@
    * A lista item a item vive em servicos.html — aqui o objetivo é a cliente
    * entender o que o salão faz sem rolar 73 linhas.
    */
+  /**
+   * As categorias que a home destaca: as três com mais serviços no catálogo,
+   * que no Espaço Lounge são também as mais procuradas. Sai da própria base,
+   * então acompanha sozinho se a Aline mudar a oferta.
+   */
+  const DESTAQUES = 3;
+
+  function categoriasEmDestaque() {
+    return serviceCategories()
+      .map((c) => ({ nome: c, quantos: SERVICES.filter((s) => s.category === c).length }))
+      .sort((x, y) => y.quantos - x.quantos)
+      .slice(0, DESTAQUES)
+      .map((c) => c.nome);
+  }
+
   function renderServicesShowcase() {
     const wrap = $("#svcShowcase");
     if (!wrap) return;
 
     const MAX_PILLS = 5;
-    wrap.innerHTML = serviceCategories().map((cat, i) => {
+    wrap.innerHTML = categoriasEmDestaque().map((cat, i) => {
       const r = categorySummary(cat);
       const num = String(i + 1).padStart(2, "0");
       const pills = r.services.slice(0, MAX_PILLS)
@@ -165,7 +180,12 @@
     }).join("");
 
     const botao = $("#btnAllServices");
-    if (botao) botao.textContent = "Ver os " + SERVICES.length + " serviços";
+    if (botao) {
+      const outras = serviceCategories().length - DESTAQUES;
+      botao.textContent = outras > 0
+        ? "Ver os " + SERVICES.length + " serviços e mais " + outras + " categorias"
+        : "Ver os " + SERVICES.length + " serviços";
+    }
 
     staggerReveal([...wrap.children]);
   }
@@ -901,8 +921,12 @@
         const b = ev.target.closest("[data-nav-cat]");
         if (!b) return;
         abrir(false);
-        const alvo = document.getElementById("svc-" + slug(b.dataset.navCat));
-        (alvo || $("#servicos")).scrollIntoView({ behavior: "smooth", block: "start" });
+        const cat = b.dataset.navCat;
+        const alvo = document.getElementById("svc-" + slug(cat));
+        // Só três categorias têm bloco na home; as outras abrem no catálogo,
+        // já filtradas, em vez de rolar para uma seção que não as mostra.
+        if (alvo) alvo.scrollIntoView({ behavior: "smooth", block: "start" });
+        else location.href = "servicos.html?cat=" + encodeURIComponent(cat);
       });
     }
   }

@@ -451,17 +451,22 @@
 
   function renderProOptions() {
     const track = $("#proOptions");
-    track.innerHTML = PROFESSIONALS.map((p) => (
-      '<div class="option-card carousel-item carousel-item-pro c-reveal">' +
-        '<input type="radio" name="professional" id="pro-' + p.id + '" value="' + p.id + '"' + (state.proId === p.id ? " checked" : "") + " />" +
-        '<label for="pro-' + p.id + '">' +
-          '<span class="pro-avatar" aria-hidden="true">' + p.initials + "</span>" +
-          '<span class="option-title">' + escapeHTML(p.name) + "</span>" +
-          '<span class="option-sub">' + escapeHTML(p.role) + "</span>" +
-          '<span class="check-mark">' + svgIcon("check", "icon") + "</span>" +
-        "</label>" +
-      "</div>"
-    )).join("");
+    // Mesmo desenho da seção Equipe: retrato em cima, nome e função embaixo.
+    track.innerHTML = PROFESSIONALS.map((p) => {
+      const visual = p.photo
+        ? '<img src="' + escapeHTML(p.photo) + '" loading="lazy" alt="" />'
+        : '<span class="pro-iniciais" aria-hidden="true">' + escapeHTML(p.initials) + "</span>";
+      return (
+        '<div class="option-card option-pro carousel-item c-reveal">' +
+          '<input type="radio" name="professional" id="pro-' + p.id + '" value="' + p.id + '"' + (state.proId === p.id ? " checked" : "") + " />" +
+          '<label for="pro-' + p.id + '">' +
+            '<span class="pro-foto">' + visual + '<span class="check-mark">' + svgIcon("check", "icon") + "</span></span>" +
+            '<span class="pro-nome">' + escapeHTML(p.name) + "</span>" +
+            '<span class="pro-funcao">' + escapeHTML(p.role) + "</span>" +
+          "</label>" +
+        "</div>"
+      );
+    }).join("");
     staggerReveal([...track.children], 45);
     scrollCarouselToChecked(track);
   }

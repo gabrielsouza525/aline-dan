@@ -125,6 +125,7 @@ legend { padding: 0; }
    ============================================================ */
 .container { width: 100%; max-width: 1240px; margin-inline: auto; padding-inline: var(--space-5); }
 .container-narrow { max-width: 780px; }
+.container-wide { max-width: 1480px; }
 @media (min-width: 900px) { .container { padding-inline: var(--space-7); } }
 
 .icon { width: 20px; height: 20px; flex-shrink: 0; }
@@ -797,7 +798,9 @@ body.menu-open .site-header .btn-logout { color: var(--color-text-muted); }
 .team-carousel .carousel-btn:hover:not(:disabled) { border-color: #fff; color: #fff; background: rgba(255, 255, 255, 0.08); }
 .team-carousel .carousel-btn:disabled { opacity: 0.2; }
 
-.team-card { margin: 0; scroll-snap-align: start; }
+/* No Mèche a foto ocupa 288px de um slide de 392 — 73%. O vão entre uma
+   e outra vem daí, não do espaçamento do carrossel. */
+.team-card { margin: 0; scroll-snap-align: start; padding-inline: 13.5%; }
 .team-portrait {
   aspect-ratio: 4 / 5; overflow: hidden; background: #2B1520;
   display: flex; align-items: center; justify-content: center;
@@ -927,6 +930,44 @@ body.menu-open .site-header .btn-logout { color: var(--color-text-muted); }
 .option-card label:hover { border-color: var(--color-border-strong); background: var(--rosa-veu); }
 .option-card input:checked + label { border-color: var(--color-primary); background: var(--rosa-veu); }
 .option-card input:focus-visible + label { outline: 2px solid var(--color-ring); outline-offset: 2px; }
+/* Escolher a profissional: retrato, nome e função — como na seção Equipe */
+.option-pro label {
+  min-height: 0; padding: 0; border: 0; background: transparent; gap: 0;
+  align-items: stretch;
+}
+.option-pro label:hover { background: transparent; }
+.option-pro input:checked + label { background: transparent; }
+.pro-foto {
+  position: relative; display: flex; align-items: center; justify-content: center;
+  aspect-ratio: 4 / 5; overflow: hidden; border-radius: var(--radius-sm);
+  background: #2B1520; border: 2px solid transparent;
+  transition: border-color var(--dur) var(--ease);
+}
+.pro-foto img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pro-iniciais {
+  font-family: var(--font-display); font-size: 2rem; color: rgba(255, 255, 255, 0.32);
+}
+.option-pro label:hover .pro-foto { border-color: var(--color-border-strong); }
+.option-pro input:checked + label .pro-foto { border-color: var(--color-primary); }
+.option-pro .check-mark {
+  position: absolute; inset: auto 8px 8px auto; width: 26px; height: 26px;
+  border-radius: 50%; background: var(--color-primary); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transform: scale(0.7);
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+}
+.option-pro input:checked + label .check-mark { opacity: 1; transform: none; }
+.pro-nome {
+  display: block; text-align: center; padding-top: var(--space-3);
+  font-family: var(--font-display); font-size: 0.86rem; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-foreground);
+}
+.pro-funcao {
+  display: block; text-align: center; margin-top: 4px;
+  font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
 .option-icon {
   width: 34px; height: 34px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
@@ -1296,6 +1337,12 @@ body.menu-open .site-header .btn-logout { color: var(--color-text-muted); }
    ÁREA DO CLIENTE
    ============================================================ */
 .account-page { padding-block: calc(var(--header-h-solid) + var(--space-6)) var(--space-8); min-height: 60dvh; }
+/* Agendamento ocupa a tela toda: nada compete com o formulário */
+.agendar-page {
+  padding-block: calc(var(--header-h-solid) + var(--space-6)) var(--space-7);
+  min-height: 100dvh; display: flex; flex-direction: column; justify-content: center;
+}
+.agendar-page .booking-card { max-width: none; }
 /* Cabeçalho das páginas internas: voltar | marca | ações */
 .header-back {
   display: inline-flex; align-items: center; gap: var(--space-2);

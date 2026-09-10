@@ -15,7 +15,16 @@ if ($method === 'GET') {
         require_admin();
         json_response(200, ['services' => get_services(false)]);
     }
-    json_response(200, ['services' => get_services(true)]);
+
+    $lista = get_services(true);
+    if (!$lista) {
+        // Instalação nova: popula com o catálogo que veio junto e responde já
+        // com ele, para o site não abrir vazio na primeira visita.
+        if (seed_services_if_empty(db()) > 0) {
+            $lista = get_services(true);
+        }
+    }
+    json_response(200, ['services' => $lista]);
 }
 
 if ($method !== 'POST') {

@@ -75,6 +75,44 @@ function get_services(bool $onlyActive = true): array
     return $rows;
 }
 
+/**
+ * Catálogo vazio numa instalação nova? Carrega o que vem junto com o código.
+ *
+ * Existe para a hospedagem sem terminal: enviados os arquivos e criado o banco,
+ * o site se resolve na primeira visita, em vez de ficar mudo esperando alguém
+ * rodar um comando que aquele painel não oferece.
+ *
+ * Só age quando a tabela está vazia, e o que insere é o arquivo versionado —
+ * nada vem do visitante. Se duas visitas caírem juntas aqui, o INSERT IGNORE
+ * do arquivo evita duplicata. Falhou? Devolve 0 e o site mostra o aviso.
+ */
+function seed_services_if_empty(PDO $pdo): int
+{
+    if ((int) $pdo->query('SELECT COUNT(*) FROM services')->fetchColumn() > 0) {
+        return 0;
+    }
+    $arquivo = dirname(__DIR__) . '/setup/servicos.sql';
+    if (!is_readable($arquivo)) {
+        return 0;
+    }
+    try {
+        $linhas = file($arquivo);
+        $sql = implode('', array_filter(
+            $linhas,
+            static fn($l) => !str_starts_with(ltrim($l), '--')
+        ));
+        foreach (array_filter(array_map('trim', explode(";\n", $sql))) as $comando) {
+            if ($comando !== '') {
+                $pdo->exec($comando);
+            }
+        }
+        return (int) $pdo->query('SELECT COUNT(*) FROM services')->fetchColumn();
+    } catch (Throwable $e) {
+        error_log('seed do catalogo falhou: ' . $e->getMessage());
+        return 0;
+    }
+}
+
 function get_service(string $id, bool $onlyActive = true): ?array
 {
     $stmt = db()->prepare(

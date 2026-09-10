@@ -62,6 +62,12 @@ administradora fica de fora do arquivo, porque a senha tem que ser escolhida
 por você e não pode viajar num arquivo versionado — para isso serve o
 instalador do próximo tópico.
 
+Se as tabelas existirem mas o catálogo estiver vazio, o site **se popula
+sozinho na primeira visita**: `api/services.php` carrega o `setup/servicos.sql`
+que veio junto com o código. É a rede para quem não tem terminal — sobe os
+arquivos, cria o banco, abre o site e os serviços já estão lá. Só age com a
+tabela vazia, e o que insere é o arquivo versionado, nada vindo do visitante.
+
 Importar duas vezes não faz mal: as tabelas usam `IF NOT EXISTS` e os serviços
 usam `INSERT IGNORE`, então nada é apagado nem duplicado.
 

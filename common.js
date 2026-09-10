@@ -255,8 +255,9 @@ window.AD = (function () {
     return '<div class="catalogo-vazio">' +
       svgIcon("block") +
       "<p><strong>Nenhum serviço cadastrado.</strong></p>" +
-      "<p>O site está no ar, mas o catálogo do banco está vazio. " +
-      "Rode <code>php setup/instalar.php</code> no servidor para popular.</p>" +
+      "<p>O site está no ar, mas não encontrou o catálogo no banco. " +
+      "Importe <code>setup/banco-completo.sql</code> pelo phpMyAdmin da " +
+      "hospedagem — ele traz as tabelas e os serviços juntos.</p>" +
       "</div>";
   }
 

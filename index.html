@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Great+Vibes&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=59" />
+  <link rel="stylesheet" href="styles.css?v=60" />
 </head>
 <body>
   <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
@@ -161,7 +161,15 @@
           <h2>Quem cuida <em>de você</em></h2>
           <p class="section-sub">Dez especialistas entre cabeleireiros e manicures, prontos para receber você.</p>
         </header>
-        <div id="teamWrap"><!-- preenchido via JS --></div>
+        <div class="carousel team-carousel reveal">
+          <button type="button" class="carousel-btn" data-carousel-prev="teamTrack" aria-label="Profissionais anteriores">
+            <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <div class="carousel-track" id="teamTrack"><!-- preenchido via JS --></div>
+          <button type="button" class="carousel-btn" data-carousel-next="teamTrack" aria-label="Próximas profissionais">
+            <svg class="icon icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+          </button>
+        </div>
       </div>
     </section>
 
@@ -372,7 +380,7 @@
     </div>
   </footer>
 
-  <script src="common.js?v=59"></script>
-  <script src="app.js?v=59"></script>
+  <script src="common.js?v=60"></script>
+  <script src="app.js?v=60"></script>
 </body>
 </html>

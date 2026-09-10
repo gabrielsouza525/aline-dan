@@ -89,8 +89,10 @@ UTC numa hospedagem) e a agenda inteira sai errada.
   penteados, maquiagem e depilação. Ponha os arquivos em `img/servicos/` e
   aponte o caminho em `CATEGORY_INFO` (`common.js`) — o bloco troca sozinho o
   painel decorativo pela foto.
-- **Nove retratos das profissionais** (3:4). Aline já usa foto; as outras mostram
-  as iniciais na mesma moldura escura, então a seção não parece quebrada. Para
-  ligar, acrescente `photo: img/equipe/nome.jpg` na lista `PROFESSIONALS`.
+- **Nove retratos das profissionais** (recorte 4:5). A seção Equipe é uma faixa
+  escura com carrossel, no estilo do Meche Salon: foto colorida e o nome embaixo.
+  Aline já usa foto; as outras mostram as iniciais na mesma moldura, então nada
+  parece quebrado. Para ligar, acrescente `photo: img/equipe/nome.jpg` na lista
+  `PROFESSIONALS` (`common.js`).
 - Substituir os 5 depoimentos de demonstração, marcados com `data-demo="1"` no
   `index.html`, por avaliações verdadeiras antes de publicar.

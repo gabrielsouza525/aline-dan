@@ -177,13 +177,13 @@
   }
 
   // ---------- Renderização: equipe ----------
-  /** Cartão de retrato. Sem foto, mantém a mesma moldura escura com as iniciais. */
+  /** Retrato com o nome embaixo. Sem foto, a moldura escura fica com as iniciais. */
   function teamCardHTML(p) {
     const visual = p.photo
       ? '<img src="' + escapeHTML(p.photo) + '" loading="lazy" alt="' + escapeHTML(p.name) + '" />'
       : '<span class="tp-initials" aria-hidden="true">' + escapeHTML(p.initials) + "</span>";
     return (
-      '<figure class="team-card reveal">' +
+      '<figure class="team-card">' +
         '<div class="team-portrait">' + visual + "</div>" +
         "<figcaption>" +
           "<strong>" + escapeHTML(p.name) + "</strong>" +
@@ -194,21 +194,14 @@
   }
 
   function renderTeamSection() {
-    const wrap = $("#teamWrap");
-    if (!wrap) return;
+    const track = $("#teamTrack");
+    if (!track) return;
+    // A fundadora abre a fila; o papel dela já diz quem é, então não precisa
+    // de um grupo à parte como antes.
     const equipe = PROFESSIONALS.filter((p) => p.id !== "any");
-    const fundadora = equipe.filter((p) => p.founder);
-    const demais = equipe.filter((p) => !p.founder);
-
-    wrap.innerHTML =
-      (fundadora.length
-        ? '<h3 class="team-group reveal">Fundadora</h3>' +
-          '<div class="team-grid is-founder">' + fundadora.map(teamCardHTML).join("") + "</div>"
-        : "") +
-      '<h3 class="team-group reveal">Especialistas</h3>' +
-      '<div class="team-grid">' + demais.map(teamCardHTML).join("") + "</div>";
-
-    staggerReveal([...wrap.querySelectorAll(".reveal")]);
+    const ordenada = equipe.filter((p) => p.founder).concat(equipe.filter((p) => !p.founder));
+    track.innerHTML = ordenada.map(teamCardHTML).join("");
+    updateCarouselButtons(track);
   }
 
   // ---------- Carrossel (serviços e profissionais) ----------

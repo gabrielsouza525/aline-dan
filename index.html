@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Great+Vibes&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=58" />
+  <link rel="stylesheet" href="styles.css?v=59" />
 </head>
 <body>
   <a class="skip-link" href="#conteudo">Pular para o conteúdo</a>
@@ -39,6 +39,7 @@
         <div class="nav-cols">
           <p class="nav-kicker">Explore</p>
           <ul class="nav-links">
+            <li><a href="#sobre">O salão</a></li>
             <li><a href="#servicos">Serviços</a></li>
             <li><a href="servicos.html">Lista completa</a></li>
             <li><a href="#equipe">Equipe</a></li>
@@ -102,12 +103,43 @@
       </div>
     </div>
 
-    <!-- ============ 01 · SERVIÇOS ============ -->
+    <!-- ============ 01 · O SALÃO ============ -->
+    <section class="section section-alt" id="sobre">
+      <div class="container about-grid">
+        <div class="about-visual reveal">
+          <div class="about-art">
+            <img src="img/aline.jpg" width="1120" height="1404" loading="lazy"
+                 alt="Aline Dan, proprietária do Espaço Lounge, segurando uma tesoura de cabeleireira." />
+          </div>
+        </div>
+        <div class="about-copy reveal">
+          <p class="eyebrow" data-num="01">O salão</p>
+          <h2>Um endereço, <em>todos</em> os cuidados</h2>
+          <p>O Espaço Lounge nasceu do sonho da Aline de reunir, em um só lugar, tudo o que uma cliente precisa para se sentir bem — com o cuidado de quem conhece cada uma pelo nome. Hoje somos dez especialistas entre cabeleireiros e manicures, na Vila São Paulo.</p>
+          <ul class="feature-list">
+            <li>
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+              <div><strong>Produtos profissionais</strong><span>Marcas reconhecidas em coloração, tratamento e finalização.</span></div>
+            </li>
+            <li>
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <div><strong>Pontualidade de verdade</strong><span>Agendamento online garante seu horário, sem espera na recepção.</span></div>
+            </li>
+            <li>
+              <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z"/></svg>
+              <div><strong>Atendimento acolhedor</strong><span>Wi-Fi, conforto e atendimento para adultos e crianças.</span></div>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 02 · SERVIÇOS ============ -->
     <!-- ============ 01 · SERVIÇOS ============ -->
     <section class="section" id="servicos">
       <div class="container">
         <header class="section-head reveal">
-          <p class="eyebrow" data-num="01">Serviços</p>
+          <p class="eyebrow" data-num="02">Serviços</p>
           <h2>Tudo o que fazemos <em>por você</em></h2>
           <p class="section-sub">Nove tipos de cuidado, do cabelo às unhas. Aqui vai um panorama de cada um — a lista completa, com preço e duração de cada atendimento, fica em uma página só dela.</p>
         </header>
@@ -118,28 +150,14 @@
           <a href="servicos.html" class="btn btn-primary" id="btnAllServices">Ver a lista completa</a>
         </div>
 
-        <ul class="promises reveal">
-          <li>
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
-            <div><strong>Produtos profissionais</strong><span>Marcas reconhecidas em coloração, tratamento e finalização.</span></div>
-          </li>
-          <li>
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            <div><strong>Pontualidade de verdade</strong><span>Agendamento online garante seu horário, sem espera na recepção.</span></div>
-          </li>
-          <li>
-            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6c-2.5 4.5-9.5 9-9.5 9z"/></svg>
-            <div><strong>Atendimento acolhedor</strong><span>Wi-Fi, conforto e atendimento para adultos e crianças.</span></div>
-          </li>
-        </ul>
       </div>
     </section>
 
-    <!-- ============ 02 · EQUIPE ============ -->
+    <!-- ============ 03 · EQUIPE ============ -->
     <section class="section section-team" id="equipe">
       <div class="container">
         <header class="section-head reveal">
-          <p class="eyebrow" data-num="02">Equipe</p>
+          <p class="eyebrow" data-num="03">Equipe</p>
           <h2>Quem cuida <em>de você</em></h2>
           <p class="section-sub">Dez especialistas entre cabeleireiros e manicures, prontos para receber você.</p>
         </header>
@@ -147,11 +165,11 @@
       </div>
     </section>
 
-    <!-- ============ 03 · AGENDAMENTO ============ -->
+    <!-- ============ 04 · AGENDAMENTO ============ -->
     <section class="section section-booking" id="agendar">
       <div class="container">
         <header class="section-head is-centered reveal">
-          <p class="eyebrow" data-num="03">Agendamento online</p>
+          <p class="eyebrow" data-num="04">Agendamento online</p>
           <h2>Reserve seu horário</h2>
           <p class="section-sub">Quatro passos e pronto — sem telefone, sem espera.</p>
         </header>
@@ -265,7 +283,7 @@
     <section class="section section-alt" id="depoimentos">
       <div class="container">
         <header class="section-head is-centered reveal">
-          <p class="eyebrow" data-num="04">Clientes</p>
+          <p class="eyebrow" data-num="05">Clientes</p>
           <h2>Quem visita, <em>volta</em></h2>
         </header>
         <!-- ================================================================
@@ -301,7 +319,7 @@
     <section class="section" id="meus-agendamentos">
       <div class="container container-narrow">
         <header class="section-head reveal">
-          <p class="eyebrow" data-num="05">Sua agenda</p>
+          <p class="eyebrow" data-num="06">Sua agenda</p>
           <h2>Meus horários</h2>
         </header>
         <div id="myBookings" class="my-bookings" aria-live="polite"></div>
@@ -354,7 +372,7 @@
     </div>
   </footer>
 
-  <script src="common.js?v=58"></script>
-  <script src="app.js?v=58"></script>
+  <script src="common.js?v=59"></script>
+  <script src="app.js?v=59"></script>
 </body>
 </html>

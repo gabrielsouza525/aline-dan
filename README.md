@@ -42,8 +42,10 @@ etiqueta, mas sai do faturamento e da contagem de atendimentos do dia.
 Precisa do **XAMPP** (Apache + MariaDB + PHP 8).
 
 1. Copie a pasta do projeto para `C:\xampp\htdocs\aline-dan`.
-2. Crie o banco e as tabelas importando, nesta ordem, os arquivos de `setup/`:
-   `schema.sql`, `migrate-v2.sql`, `migrate-v3.sql`, `migrate-v4.sql`.
+2. Crie um banco vazio e importe **`setup/banco-completo.sql`**. Ele traz as
+   quatro tabelas com todas as migrations já aplicadas **e os 73 serviços do
+   catálogo** — um arquivo só. Os `schema.sql` e `migrate-*.sql` continuam na
+   pasta como histórico; não precisa importá-los.
 3. Copie `api/config.example.php` para `api/config.php` e ajuste o que precisar.
    No XAMPP padrão (root sem senha) já funciona como está.
 4. Rode o instalador — ele confere tudo e popula o catálogo se estiver vazio:
@@ -54,13 +56,20 @@ Precisa do **XAMPP** (Apache + MariaDB + PHP 8).
 
 5. Abra `http://localhost/aline-dan/`.
 
-**Publicando em hospedagem, rode o passo 4 lá também.** É o passo que evita o
-erro mais chato deste projeto: banco com as tabelas criadas e sem nenhum
-serviço. Nesse estado a API responde `200` com uma lista vazia, o site carrega
-inteiro e não mostra nada — parece PHP quebrado, e não é. O `migrate-v3.sql`
-apaga a tabela antes de inserir, então uma importação interrompida no meio
-deixa exatamente esse buraco. O `setup/servicos.sql` que o instalador usa não
-apaga nada e pode rodar quantas vezes quiser.
+**Na hospedagem é o mesmo caminho:** crie o banco pelo painel, importe o
+`banco-completo.sql` pelo phpMyAdmin e preencha o `config.php`. Só a conta da
+administradora fica de fora do arquivo, porque a senha tem que ser escolhida
+por você e não pode viajar num arquivo versionado — para isso serve o
+instalador do próximo tópico.
+
+Importar duas vezes não faz mal: as tabelas usam `IF NOT EXISTS` e os serviços
+usam `INSERT IGNORE`, então nada é apagado nem duplicado.
+
+O `migrate-v3.sql` antigo apagava a tabela de serviços antes de inserir. Uma
+importação interrompida no meio apagava e não inseria, e o site subia com o
+catálogo vazio: a API respondia `200` com uma lista vazia, a página carregava
+inteira e não mostrava nada — com cara de PHP quebrado, sem ser. O
+`banco-completo.sql` não tem `DELETE` nenhum.
 
 O instalador também cria a administradora (o cadastro público só faz cliente):
 

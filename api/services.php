@@ -16,14 +16,54 @@ if ($method === 'GET') {
         json_response(200, ['services' => get_services(false)]);
     }
 
+    // Catálogo vazio pode ser cinco coisas diferentes, e cada uma se resolve
+    // de um jeito. Sem dizer qual é, sobra adivinhar olhando uma tela vazia.
+    try {
+        $pdo = db();
+    } catch (Throwable $e) {
+        json_response(200, [
+            'services' => [],
+            'problema' => 'sem_conexao',
+            'mensagem' => 'O site não conseguiu falar com o banco de dados. '
+                . 'Confira DB_NAME, DB_USER e DB_PASS em api/config.php — devem ser '
+                . 'os dados que a hospedagem mostra no painel do MySQL.',
+        ]);
+    }
+
+    $temTabela = (bool) $pdo->query("SHOW TABLES LIKE 'services'")->fetchColumn();
+    if (!$temTabela) {
+        json_response(200, [
+            'services' => [],
+            'problema' => 'tabela_ausente',
+            'mensagem' => 'O banco existe mas está sem as tabelas. Importe '
+                . 'setup/banco-completo.sql pelo phpMyAdmin da hospedagem: '
+                . 'ele cria as tabelas e já traz os 73 serviços.',
+        ]);
+    }
+
     $lista = get_services(true);
     if (!$lista) {
         // Instalação nova: popula com o catálogo que veio junto e responde já
         // com ele, para o site não abrir vazio na primeira visita.
-        if (seed_services_if_empty(db()) > 0) {
+        if (seed_services_if_empty($pdo) > 0) {
             $lista = get_services(true);
         }
     }
+
+    if (!$lista) {
+        $arquivo = dirname(__DIR__) . '/setup/servicos.sql';
+        json_response(200, [
+            'services' => [],
+            'problema' => is_readable($arquivo) ? 'vazio' : 'seed_ausente',
+            'mensagem' => is_readable($arquivo)
+                ? 'A tabela de serviços existe mas está vazia, e a carga automática '
+                    . 'não funcionou. Importe setup/banco-completo.sql pelo phpMyAdmin.'
+                : 'A tabela de serviços está vazia e o arquivo setup/servicos.sql não '
+                    . 'chegou ao servidor. Envie a pasta setup/ inteira por FTP e '
+                    . 'recarregue esta página.',
+        ]);
+    }
+
     json_response(200, ['services' => $lista]);
 }
 

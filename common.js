@@ -220,8 +220,16 @@ window.AD = (function () {
   };
 
   /** Carrega os serviços do banco para dentro de AD.SERVICES. */
+  // Guarda o motivo de o catálogo estar vazio, para a tela poder explicar
+  let diagnosticoCatalogo = null;
+
   async function loadCatalog() {
     const res = await api.services();
+    diagnosticoCatalogo = res.ok
+      ? (res.data.mensagem || null)
+      : (res.data.error || "O servidor não respondeu ao pedido do catálogo. "
+          + "Se a hospedagem não roda PHP, o site não funciona nela — "
+          + "ele precisa de PHP 8 e MySQL.");
     if (res.ok) {
       SERVICES.length = 0;
       (res.data.services || []).forEach((s) => {
@@ -252,12 +260,12 @@ window.AD = (function () {
   }
 
   function catalogoVazioHTML() {
+    const motivo = diagnosticoCatalogo
+      || "O site está no ar, mas não encontrou o catálogo no banco.";
     return '<div class="catalogo-vazio">' +
       svgIcon("block") +
       "<p><strong>Nenhum serviço cadastrado.</strong></p>" +
-      "<p>O site está no ar, mas não encontrou o catálogo no banco. " +
-      "Importe <code>setup/banco-completo.sql</code> pelo phpMyAdmin da " +
-      "hospedagem — ele traz as tabelas e os serviços juntos.</p>" +
+      "<p>" + escapeHTML(motivo) + "</p>" +
       "</div>";
   }
 

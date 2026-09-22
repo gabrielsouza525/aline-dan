@@ -18,6 +18,23 @@ const LEMBRAR_COOKIE = 'alinedan_lembrar';
 const LEMBRAR_DIAS   = 30;
 
 /**
+ * O site publicado é HTTPS? Decidido pelo BASE_URL do config, e não pela
+ * requisição: atrás do proxy da hospedagem o PHP nem sempre enxerga que a
+ * conexão veio cifrada. No localhost (http://) continua tudo como antes.
+ */
+function site_https(): bool
+{
+    return defined('BASE_URL') && strpos(BASE_URL, 'https://') === 0;
+}
+
+// Cookie de sessão marcado Secure: o navegador nunca o manda por HTTP, nem
+// no primeiro acesso a http://, antes do redirecionamento para https://.
+// Vale porque este arquivo carrega antes de qualquer start_session().
+if (site_https()) {
+    ini_set('session.cookie_secure', '1');
+}
+
+/**
  * Garante a tabela user_tokens, com "remember" entre os tipos.
  *
  * O banco-completo.sql de 10/09 não trazia essa tabela, e sem ela o cadastro,
@@ -53,12 +70,10 @@ function tokens_prontos(PDO $pdo): void
 
 function lembrar_cookie(string $valor, int $expira): void
 {
-    $https = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
-        || (($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '') === 'https');
     setcookie(LEMBRAR_COOKIE, $valor, [
         'expires'  => $expira,
         'path'     => '/',
-        'secure'   => $https,
+        'secure'   => site_https(),
         'httponly' => true,
         'samesite' => 'Lax',
     ]);

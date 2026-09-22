@@ -33,27 +33,27 @@ window.AD = (function () {
     "Cabelo": {
       kicker: "Corte, cor e tratamento",
       desc: "Do corte ao loiro dos sonhos: coloração, mechas, progressiva, botox e tratamentos de reconstrução — sempre terminando com escova e finalização.",
-      photo: "",
+      photo: "img/servicos/cabelo.jpg",
     },
     "Mãos e Pés": {
       kicker: "Manicure e pedicure",
       desc: "Esmaltação, spa dos pés e cutilágem feitos com material esterilizado, no tempo que o cuidado pede.",
-      photo: "",
+      photo: "img/servicos/maos-e-pes.jpg",
     },
     "Cílios": {
       kicker: "Extensão e manutenção",
       desc: "Volume brasileiro, russo, egípcio e 4D, com manutenção em dia para o olhar continuar levantado.",
-      photo: "",
+      photo: "img/servicos/cilios.jpg",
     },
     "Unhas Artificiais": {
       kicker: "Alongamento e blindagem",
       desc: "Fibra, gel e blindagem para unhas que aguentam a rotina sem perder o acabamento.",
-      photo: "",
+      photo: "img/servicos/unhas-artificiais.jpg",
     },
     "Unhas em Gel": {
       kicker: "Banho e esmaltação",
       desc: "Banho em gel e esmaltação que atravessam semanas com o brilho do primeiro dia.",
-      photo: "",
+      photo: "img/servicos/unhas-em-gel.jpg",
     },
     "Sobrancelha": {
       kicker: "Design e henna",

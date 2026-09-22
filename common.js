@@ -114,6 +114,22 @@ window.AD = (function () {
   const pad2 = (n) => String(n).padStart(2, "0");
   const minToHm = (m) => pad2(Math.floor(m / 60)) + ":" + pad2(m % 60);
 
+  // Fim previsto do atendimento: "08:10" + 60 min => "09:10"
+  const hmToMin = (hm) => {
+    const p = String(hm || "").split(":");
+    return (parseInt(p[0], 10) || 0) * 60 + (parseInt(p[1], 10) || 0);
+  };
+  const endTime = (hm, minutos) => minToHm(hmToMin(hm) + (Number(minutos) || 0));
+
+  // Duracao em texto curto: "45 min" · "1h" · "1h30"
+  const durationLabel = (minutos) => {
+    const m = Number(minutos) || 0;
+    if (m <= 0) return "";
+    if (m < 60) return m + " min";
+    const h = Math.floor(m / 60), resto = m % 60;
+    return resto ? h + "h" + pad2(resto) : h + "h";
+  };
+
   // Linhas do quadro da agenda: uma por hora cheia
   const GRID_HOURS = [];
   for (let m = OPEN_MIN; m < CLOSING_MIN; m += 60) GRID_HOURS.push(minToHm(m));
@@ -389,7 +405,7 @@ window.AD = (function () {
     ICONS, WEEKDAYS_SHORT, MONTHS_SHORT,
     svgIcon, escapeHTML, brl, priceLabel, serviceCategories, CATEGORY_INFO, categorySummary,
     catalogoVazio, catalogoVazioHTML,
-    toISODate, fromISODate, formatDateLong,
+    toISODate, fromISODate, formatDateLong, endTime, durationLabel,
     apiRequest, api, loadCatalog, showToast, setLoading, maskPhone, attachPhoneMask,
     setupPasswordToggles, savePendingBooking, takePendingBooking,
   };

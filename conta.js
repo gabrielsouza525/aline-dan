@@ -5,7 +5,7 @@
 (function () {
   "use strict";
   const {
-    SERVICES, PROFESSIONALS, MONTHS_SHORT,
+    SERVICES, PROFESSIONALS, MONTHS_SHORT, endTime, durationLabel,
     TIME_SLOTS, CLOSED_WEEKDAYS, WEEKDAYS_SHORT, slotsHTML, SALON_WHATSAPP,
     api, loadCatalog, svgIcon, escapeHTML, brl, fromISODate, formatDateLong, toISODate,
     showToast, setLoading, maskPhone, attachPhoneMask, setupPasswordToggles,
@@ -71,6 +71,11 @@
     const svc = { name: b.service_name || b.service_id, price: b.price || 0 };
     const pro = PROFESSIONALS.find((p) => p.id === b.pro_id) || { name: b.pro_id };
     const d = fromISODate(b.date);
+    // A duracao vem congelada no agendamento, entao o fim previsto continua
+    // correto mesmo que o preco ou a duracao do servico mudem depois.
+    const dur = Number(b.duration_min) || 0;
+    const faixa = dur > 0 ? b.time + " – " + endTime(b.time, dur) : b.time;
+    const quanto = dur > 0 ? durationLabel(dur) + " de duração · " : "";
     return (
       '<div class="booking-item">' +
         '<div class="bi-date" aria-hidden="true">' +
@@ -78,8 +83,8 @@
           '<span class="bi-month">' + MONTHS_SHORT[d.getMonth()] + "</span>" +
         "</div>" +
         '<div class="bi-info">' +
-          "<strong>" + svc.name + " · " + b.time + "</strong>" +
-          "<span>" + formatDateLong(b.date) + " · com " + pro.name + " · " + brl(svc.price) + "</span>" +
+          "<strong>" + svc.name + " · " + faixa + "</strong>" +
+          "<span>" + formatDateLong(b.date) + " · " + quanto + "com " + pro.name + " · " + brl(svc.price) + "</span>" +
         "</div>" +
         (withCancel
           ? (b.can_change === false

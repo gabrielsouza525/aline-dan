@@ -6,7 +6,7 @@
   "use strict";
   const {
     SERVICES, PROFESSIONALS, MONTHS_SHORT, endTime, durationLabel,
-    TIME_SLOTS, CLOSED_WEEKDAYS, WEEKDAYS_SHORT, slotsHTML, SALON_WHATSAPP,
+    TIME_SLOTS, CLOSED_WEEKDAYS, WEEKDAYS_SHORT, slotsHTML, SALON_WHATSAPP, MAX_DAYS_AHEAD,
     api, loadCatalog, svgIcon, escapeHTML, brl, fromISODate, formatDateLong, toISODate,
     showToast, setLoading, maskPhone, attachPhoneMask, setupPasswordToggles,
   } = window.AD;
@@ -83,8 +83,8 @@
           '<span class="bi-month">' + MONTHS_SHORT[d.getMonth()] + "</span>" +
         "</div>" +
         '<div class="bi-info">' +
-          "<strong>" + svc.name + " · " + faixa + "</strong>" +
-          "<span>" + formatDateLong(b.date) + " · " + quanto + "com " + pro.name + " · " + brl(svc.price) + "</span>" +
+          "<strong>" + escapeHTML(svc.name) + " · " + escapeHTML(faixa) + "</strong>" +
+          "<span>" + formatDateLong(b.date) + " · " + quanto + "com " + escapeHTML(pro.name) + " · " + brl(svc.price) + "</span>" +
         "</div>" +
         (withCancel
           ? (b.can_change === false
@@ -157,11 +157,15 @@
     rs.id = null;
   }
 
-  /** Próximos dias em que o salão abre. */
+  /**
+   * Dias em que o salão abre, de hoje até o limite de agendamento — os mesmos
+   * 60 dias do agendar.html e do servidor (antes eram 30 dias e no máximo 12
+   * datas, e a cliente não achava um dia que o agendamento novo oferecia).
+   */
   function openDates() {
     const out = [];
     const hoje = new Date();
-    for (let i = 0; i < 30 && out.length < 12; i++) {
+    for (let i = 0; i <= MAX_DAYS_AHEAD; i++) {
       const d = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() + i);
       if (CLOSED_WEEKDAYS.includes(d.getDay())) continue;
       out.push(toISODate(d));

@@ -262,7 +262,7 @@
       '<div class="blocks-list"><strong>Bloqueios do dia:</strong>' +
       state.blocks.map((bl) => {
         const who = bl.pro_id === "all" ? "Todas" : (PROFESSIONALS.find((p) => p.id === bl.pro_id) || {}).name || bl.pro_id;
-        return '<span class="block-chip">' + who + " · " + bl.start + "–" + bl.end +
+        return '<span class="block-chip">' + escapeHTML(who) + " · " + bl.start + "–" + bl.end +
           (bl.reason ? " · " + escapeHTML(bl.reason) : "") +
           ' <button type="button" class="block-remove" data-unblock="' + bl.id + '" aria-label="Remover bloqueio">×</button></span>';
       }).join("") + "</div>";
@@ -421,7 +421,7 @@
 
   // ---------- Balcão: novo agendamento ----------
   function fillSelect(sel, options) {
-    sel.innerHTML = options.map((o) => '<option value="' + o.value + '">' + escapeHTML(o.label) + "</option>").join("");
+    sel.innerHTML = options.map((o) => '<option value="' + escapeHTML(o.value) + '">' + escapeHTML(o.label) + "</option>").join("");
   }
 
   function setupBookingForm() {

@@ -5,7 +5,7 @@
 (function () {
   "use strict";
   const {
-    SERVICES, PROFESSIONALS, TIME_SLOTS, CLOSED_WEEKDAYS, SALON_WHATSAPP, slotsHTML,
+    SERVICES, PROFESSIONALS, TIME_SLOTS, CLOSED_WEEKDAYS, SALON_WHATSAPP, slotsHTML, MAX_DAYS_AHEAD,
     catalogoVazio, catalogoVazioHTML,
     categorySummary,
     WEEKDAYS_SHORT, MONTHS_SHORT,
@@ -517,7 +517,7 @@
   /** Último dia que aceita agendamento (o servidor usa o mesmo limite). */
   function ultimoDiaAceito() {
     const d = new Date();
-    d.setDate(d.getDate() + 60);
+    d.setDate(d.getDate() + MAX_DAYS_AHEAD);
     return d;
   }
 
@@ -718,8 +718,8 @@
     const pro = PROFESSIONALS.find((p) => p.id === booking.proId);
     return (
       "<dl>" +
-        "<div><dt>Serviço</dt><dd>" + svc.name + "</dd></div>" +
-        "<div><dt>Profissional</dt><dd>" + pro.name + "</dd></div>" +
+        "<div><dt>Serviço</dt><dd>" + escapeHTML(svc.name) + "</dd></div>" +
+        "<div><dt>Profissional</dt><dd>" + escapeHTML(pro.name) + "</dd></div>" +
         "<div><dt>Data</dt><dd>" + formatDateLong(booking.date) + "</dd></div>" +
         "<div><dt>Horário</dt><dd>" + booking.time + " · " + svc.duration + " min</dd></div>" +
         "<div><dt>Valor</dt><dd>" + priceLabel(svc) + "</dd></div>" +
@@ -884,8 +884,8 @@
             '<span class="bi-month">' + MONTHS_SHORT[d.getMonth()] + "</span>" +
           "</div>" +
           '<div class="bi-info">' +
-            "<strong>" + svc.name + " · " + faixa + "</strong>" +
-            "<span>" + formatDateLong(b.date) + " · " + quanto + "com " + pro.name + "</span>" +
+            "<strong>" + escapeHTML(svc.name) + " · " + escapeHTML(faixa) + "</strong>" +
+            "<span>" + formatDateLong(b.date) + " · " + quanto + "com " + escapeHTML(pro.name) + "</span>" +
           "</div>" +
           '<button type="button" class="btn-cancel" data-cancel="' + b.id + '">Cancelar</button>' +
         "</div>"

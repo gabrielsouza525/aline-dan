@@ -106,6 +106,9 @@ window.AD = (function () {
   ];
 
   const CLOSED_WEEKDAYS = [0, 1];
+  // Até quantos dias à frente dá para agendar ou remarcar. Igual ao
+  // MAX_DAYS_AHEAD de api/data.php — o servidor recusa o que passar disso.
+  const MAX_DAYS_AHEAD = 60;
   const SALON_WHATSAPP = "5518996655263";
 
   const SLOT_STEP = 5;         // minutos entre um horário e o seguinte
@@ -402,7 +405,7 @@ window.AD = (function () {
 
   return {
     SERVICES, PROFESSIONALS, TIME_SLOTS, CLOSED_WEEKDAYS, SALON_WHATSAPP,
-    SLOT_STEP, OPEN_MIN, CLOSING_MIN, GRID_HOURS, slotsHTML,
+    SLOT_STEP, OPEN_MIN, CLOSING_MIN, GRID_HOURS, slotsHTML, MAX_DAYS_AHEAD,
     ICONS, WEEKDAYS_SHORT, MONTHS_SHORT,
     svgIcon, escapeHTML, brl, priceLabel, serviceCategories, CATEGORY_INFO, categorySummary,
     catalogoVazio, catalogoVazioHTML,

@@ -199,7 +199,7 @@ window.AD = (function () {
     try {
       res = await fetch("api/" + path, init);
     } catch (e) {
-      return { ok: false, status: 0, data: { error: "Não foi possível falar com o servidor. Verifique se o XAMPP está ligado." } };
+      return { ok: false, status: 0, data: { error: "Não foi possível conectar. Confira sua internet e tente de novo." } };
     }
     let data = null;
     try { data = await res.json(); } catch (e) { /* resposta sem corpo */ }
@@ -236,16 +236,17 @@ window.AD = (function () {
   };
 
   /** Carrega os serviços do banco para dentro de AD.SERVICES. */
-  // Guarda o motivo de o catálogo estar vazio, para a tela poder explicar
-  let diagnosticoCatalogo = null;
-
   async function loadCatalog() {
     const res = await api.services();
-    diagnosticoCatalogo = res.ok
-      ? (res.data.mensagem || null)
+    // O motivo técnico de um catálogo vazio (config errado, tabela faltando...)
+    // vai para o console, não para a tela: quem visita o site não tem o que
+    // fazer com ele. Também aparece em api/services.php, campo "mensagem".
+    const diagnostico = res.ok
+      ? res.data.mensagem
       : (res.data.error || "O servidor não respondeu ao pedido do catálogo. "
           + "Se a hospedagem não roda PHP, o site não funciona nela — "
           + "ele precisa de PHP 8 e MySQL.");
+    if (diagnostico) console.warn("[Aline Dan] Catálogo vazio: " + diagnostico);
     if (res.ok) {
       SERVICES.length = 0;
       (res.data.services || []).forEach((s) => {
@@ -276,12 +277,12 @@ window.AD = (function () {
   }
 
   function catalogoVazioHTML() {
-    const motivo = diagnosticoCatalogo
-      || "O site está no ar, mas não encontrou o catálogo no banco.";
     return '<div class="catalogo-vazio">' +
       svgIcon("block") +
-      "<p><strong>Nenhum serviço cadastrado.</strong></p>" +
-      "<p>" + escapeHTML(motivo) + "</p>" +
+      "<p><strong>Não foi possível carregar os serviços agora.</strong></p>" +
+      "<p>Tente de novo em alguns minutos — ou " +
+        '<a class="link-inline" href="https://wa.me/' + SALON_WHATSAPP + '" target="_blank" rel="noopener">' +
+        "chame o salão no WhatsApp</a>, que a gente agenda por lá.</p>" +
       "</div>";
   }
 

@@ -693,7 +693,9 @@ body.menu-open .site-header .btn-logout { color: var(--color-text-muted); }
 .svc-block { display: grid; gap: var(--space-5); align-items: center; }
 @media (min-width: 860px) {
   .svc-block { grid-template-columns: 0.9fr 1.1fr; gap: var(--space-8); }
-  /* blocos pares invertem: a foto vai para a direita */
+  /* Blocos pares invertem: a foto vai para a direita. As COLUNAS precisam
+     inverter junto, senao a foto da direita fica 22% maior que a da esquerda. */
+  .svc-block:nth-child(even) { grid-template-columns: 1.1fr 0.9fr; }
   .svc-block:nth-child(even) .svc-photo { order: 2; }
 }
 .svc-photo {

@@ -89,13 +89,13 @@ CREATE TABLE IF NOT EXISTS `schedule_blocks` (
   PRIMARY KEY (`id`),
   KEY `idx_block_date` (`block_date`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
--- Confirmação de e-mail e redefinição de senha.
+-- Confirmação de e-mail, redefinição de senha e "manter conectado".
 -- Faltava na primeira versão deste arquivo; o site agora também a cria
 -- sozinho no primeiro uso (api/lembrar.php).
 CREATE TABLE IF NOT EXISTS `user_tokens` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` int(10) unsigned NOT NULL,
-  `kind` enum('verify','reset') NOT NULL,
+  `kind` enum('verify','reset','remember') NOT NULL,
   `token_hash` char(64) NOT NULL,
   `expires_at` datetime NOT NULL,
   `used_at` datetime DEFAULT NULL,

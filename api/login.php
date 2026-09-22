@@ -30,6 +30,11 @@ if ($user === false || !password_verify($password, $user['password_hash'])) {
 session_regenerate_id(true);
 $_SESSION['user_id'] = (int) $user['id'];
 
+// "Manter conectado" marcado: este aparelho fica logado por 30 dias
+if (!empty($body['remember'])) {
+    lembrar_emitir((int) $user['id']);
+}
+
 json_response(200, ['user' => [
     'id'           => (int) $user['id'],
     'name'         => $user['name'],

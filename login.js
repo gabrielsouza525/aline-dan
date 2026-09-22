@@ -48,7 +48,11 @@
     errEl.hidden = true;
     const btn = $("#btnLogin");
     setLoading(btn, true, "Entrando…");
-    const res = await api.login({ email: $("#loginEmail").value.trim(), password: $("#loginPassword").value });
+    const res = await api.login({
+      email: $("#loginEmail").value.trim(),
+      password: $("#loginPassword").value,
+      remember: $("#loginRemember").checked,
+    });
     setLoading(btn, false);
     if (!res.ok) {
       errEl.textContent = res.data.error || "Não foi possível entrar.";
@@ -69,6 +73,7 @@
       email: $("#regEmail").value.trim(),
       phone: $("#regPhone").value.trim(),
       password: $("#regPassword").value,
+      remember: $("#regRemember").checked,
     });
     setLoading(btn, false);
     if (!res.ok) {

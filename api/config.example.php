@@ -89,6 +89,10 @@ function start_session(): void
         'path'     => '/',
     ]);
     session_start();
+    // Sessão perdida mas com "manter conectado"? Refaz o login (lembrar.php).
+    if (function_exists('lembrar_restaurar')) {
+        lembrar_restaurar();
+    }
 }
 
 function json_response(int $status, array $data): void
@@ -155,8 +159,8 @@ function require_admin(): array
     return $user;
 }
 
-// Tabela de tokens (confirmação de e-mail e redefinição de senha). Carregado
-// só se o arquivo existir, para um envio pela metade não derrubar o site.
+// "Manter conectado" e a tabela de tokens. Carregado só se o arquivo existir,
+// para um envio pela metade não derrubar o site inteiro.
 if (is_file(__DIR__ . '/lembrar.php')) {
     require_once __DIR__ . '/lembrar.php';
 }

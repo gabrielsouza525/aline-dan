@@ -5,6 +5,7 @@ require __DIR__ . '/config.php';
 
 require_method('POST');
 start_session();
+lembrar_esquecer();   // sair é sair: o "manter conectado" deste aparelho vai junto
 
 $_SESSION = [];
 if (ini_get('session.use_cookies')) {

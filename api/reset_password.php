@@ -34,4 +34,8 @@ $pdo->prepare('UPDATE users SET password_hash = ? WHERE id = ?')
 $pdo->prepare('UPDATE user_tokens SET used_at = NOW() WHERE id = ?')
     ->execute([$row['id']]);
 
+// Quem redefine a senha pode estar tirando alguém da conta: nenhum aparelho
+// continua logado com a senha antiga
+lembrar_esquecer_todos((int) $row['user_id']);
+
 json_response(200, ['ok' => true]);

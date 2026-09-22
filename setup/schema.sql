@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS schedule_blocks (
 CREATE TABLE IF NOT EXISTS user_tokens (
   id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   user_id    INT UNSIGNED NOT NULL,
-  kind       ENUM('verify','reset') NOT NULL,
+  kind       ENUM('verify','reset','remember') NOT NULL,
   token_hash CHAR(64)     NOT NULL,
   expires_at DATETIME     NOT NULL,
   used_at    DATETIME     NULL,

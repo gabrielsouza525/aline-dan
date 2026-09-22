@@ -25,6 +25,13 @@ if ($row === false || !password_verify($current, $row['password_hash'])) {
 $stmt = db()->prepare('UPDATE users SET password_hash = ? WHERE id = ?');
 $stmt->execute([password_hash($new, PASSWORD_DEFAULT), $user['id']]);
 
+// Senha nova derruba o "manter conectado" dos outros aparelhos; este continua
+$lembrava = lembrar_token_do_cookie() !== null;
+lembrar_esquecer_todos((int) $user['id']);
+if ($lembrava) {
+    lembrar_emitir((int) $user['id']);
+}
+
 session_regenerate_id(true);
 
 json_response(200, ['ok' => true]);

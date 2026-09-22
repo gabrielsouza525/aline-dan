@@ -44,6 +44,9 @@ $stmt->execute([$name, $email, $phone, password_hash($password, PASSWORD_DEFAULT
 
 session_regenerate_id(true);
 $_SESSION['user_id'] = (int) $pdo->lastInsertId();
+if (!empty($body['remember'])) {
+    lembrar_emitir($_SESSION['user_id']);
+}
 
 // E-mail de confirmação (a conta funciona mesmo antes de confirmar)
 $token = bin2hex(random_bytes(32));

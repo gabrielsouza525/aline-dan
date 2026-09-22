@@ -560,14 +560,14 @@ body.menu-open .site-header .btn-logout { color: var(--color-text-muted); }
 
 /* Faixa corrida com a assinatura */
 .marquee { border-block: var(--hairline); padding-block: var(--space-4); overflow: hidden; background: var(--color-surface); }
-.marquee-track { display: flex; gap: var(--space-6); width: max-content; animation: marquee 20s linear infinite; }
+.marquee-track { display: flex; width: max-content; animation: marquee 20s linear infinite; }
 .marquee span {
   display: inline-flex; align-items: center; gap: var(--space-6);
   font-family: var(--font-display); font-size: 1.5rem; font-style: italic;
-  color: var(--color-text-muted); white-space: nowrap;
+  color: var(--color-text-muted); white-space: nowrap; margin-inline-end: var(--space-6);
 }
 .marquee span::after { content: "·"; color: var(--color-primary); font-style: normal; }
-@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-20%); } }
 @media (prefers-reduced-motion: reduce) { .marquee-track { animation: none; } }
 
 /* ============================================================
@@ -667,7 +667,7 @@ body.menu-open .site-header .btn-logout { color: var(--color-text-muted); }
 .service-meta .duration {
   display: inline-flex; align-items: center; gap: var(--space-1);
   font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
-  color: var(--color-text-muted); white-space: nowrap;
+  color: var(--color-text-muted); white-space: nowrap; margin-inline-end: var(--space-6);
 }
 .service-meta .duration .icon { display: none; }
 .service-card .btn { align-self: center; justify-self: start; }
@@ -797,7 +797,7 @@ body.menu-open .site-header .btn-logout { color: var(--color-text-muted); }
 .ci-preco { font-size: 0.92rem; font-weight: 500; color: var(--color-foreground); white-space: nowrap; }
 .ci-dur {
   font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase;
-  color: var(--color-text-muted); white-space: nowrap;
+  color: var(--color-text-muted); white-space: nowrap; margin-inline-end: var(--space-6);
 }
 .ci-btn {
   padding: 7px var(--space-4); border: 1px solid var(--color-border);

@@ -232,8 +232,22 @@ legend { padding: 0; }
   box-shadow: 0 0 0 rgba(54, 13, 41, 0);
   transition: background-color var(--dur-header) var(--ease),
               border-color var(--dur-header) var(--ease),
-              box-shadow var(--dur-header) var(--ease),
-              backdrop-filter var(--dur-header) var(--ease);
+              box-shadow var(--dur-header) var(--ease);
+}
+/* O fundo translúcido e o desfoque do modo sólido ficam numa camada à parte.
+   Com backdrop-filter no próprio <header>, ele vira o bloco de contenção dos
+   filhos position: fixed — e o menu em cortina, que mora dentro dele, ficava
+   espremido na faixa do cabeçalho (188px) até o desfoque terminar de sumir. */
+.site-header::before {
+  content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-color: transparent;
+  transition: background-color var(--dur-header) var(--ease),
+              backdrop-filter var(--dur-header) var(--ease),
+              -webkit-backdrop-filter var(--dur-header) var(--ease);
+}
+.site-header.is-solid::before {
+  background-color: rgba(251, 248, 249, 0.94);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
 }
 .header-inner {
   display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
@@ -310,8 +324,6 @@ legend { padding: 0; }
 
 /* Depois de rolar */
 .site-header.is-solid {
-  background: rgba(251, 248, 249, 0.94);
-  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
   border-bottom-color: var(--color-border);
   box-shadow: 0 6px 28px rgba(54, 13, 41, 0.09);
 }

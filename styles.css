@@ -1611,7 +1611,6 @@ body.menu-open .site-header .btn-logout { color: var(--color-text-muted); }
 .agenda-free { color: #CDBAC3; font-size: 0.8rem; }
 .agenda-table td.has-booking { background: var(--rosa-veu); }
 .agenda-booking { display: flex; flex-direction: column; gap: 3px; background: var(--color-surface); border: 1px solid var(--color-border); border-left: 2px solid var(--color-primary); padding: var(--space-2) var(--space-3); min-width: 165px; border-radius: var(--radius-sm); }
-.agenda-booking + .agenda-booking { margin-top: var(--space-2); }
 .ab-client { color: var(--color-foreground); font-size: 0.9rem; font-weight: 500; }
 .ab-service { color: var(--color-text-muted); font-size: 0.76rem; }
 .ab-actions { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); flex-wrap: wrap; margin-top: 2px; }
@@ -1620,8 +1619,58 @@ body.menu-open .site-header .btn-logout { color: var(--color-text-muted); }
 .ab-cancel { background: none; border: 0; padding: 3px 5px; min-height: 30px; color: var(--color-destructive); font: inherit; font-size: 0.74rem; font-weight: 500; cursor: pointer; }
 .ab-cancel:hover { text-decoration: underline; }
 .ab-guest { font-size: 0.58rem; letter-spacing: 0.08em; text-transform: uppercase; background: var(--rosa-tint); color: var(--color-primary); padding: 1px 6px; }
-.agenda-cont { display: block; font-size: 0.76rem; color: var(--color-text-muted); border-left: 2px solid var(--color-border-strong); padding: 2px var(--space-2); border-radius: var(--radius-sm); }
-.agenda-blocked { display: flex; align-items: center; gap: var(--space-1); font-size: 0.76rem; font-weight: 500; color: #7A5B12; background: #FDF6E3; padding: var(--space-2); border-radius: var(--radius-sm); }
+/* ---------- Agenda do dia: linha do tempo de 5 em 5 minutos ----------
+   A escala vem do admin.js (--tl-5 = altura de 5 minutos). A caixa rola por
+   dentro nos dois sentidos, para o cabeçalho e a régua ficarem fixos. */
+.agenda-scroll.is-timeline { max-height: 74vh; overflow: auto; overscroll-behavior: contain; }
+.tl {
+  display: grid; grid-template-columns: 64px repeat(var(--tl-cols), minmax(170px, 1fr));
+  min-width: max-content; background: var(--color-surface);
+}
+.tl-head {
+  position: sticky; top: 0; z-index: 4;
+  padding: var(--space-3); background: var(--rosa-veu); border-bottom: 1px solid var(--color-border-strong);
+  font-family: var(--font-body); font-size: 0.62rem; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase;
+}
+.tl-corner { left: 0; z-index: 5; display: flex; align-items: center; }
+.tl-ruler, .tl-col { position: relative; height: calc(var(--tl-5) * var(--tl-faixas)); }
+.tl-ruler { position: sticky; left: 0; z-index: 3; background: var(--color-surface); border-right: 1px solid var(--color-border-strong); }
+.tl-mark {
+  position: absolute; left: 0; right: 0; height: var(--tl-5); padding-right: var(--space-2);
+  text-align: right; font-size: 0.6rem; line-height: var(--tl-5); font-variant-numeric: tabular-nums; color: #C9B6BF;
+}
+.tl-mark.is-meia { color: var(--color-text-muted); }
+.tl-mark.is-hora { color: var(--color-foreground); font-weight: 600; font-size: 0.7rem; border-top: 1px solid var(--color-border-strong); }
+/* Linhas: hora cheia forte, meia hora média, cada 5 minutos bem clarinha */
+.tl-col {
+  border-left: var(--hairline);
+  background-image:
+    linear-gradient(var(--color-border-strong) 1px, transparent 1px),
+    linear-gradient(var(--color-border) 1px, transparent 1px),
+    linear-gradient(rgba(233, 219, 225, 0.45) 1px, transparent 1px);
+  background-size: 100% calc(var(--tl-5) * 12), 100% calc(var(--tl-5) * 6), 100% var(--tl-5);
+}
+.tl-event { position: absolute; z-index: 2; border-radius: var(--radius-sm); outline-offset: 2px; }
+.tl-event .agenda-booking {
+  min-width: 0; height: 100%; box-sizing: border-box; overflow: hidden;
+  padding: 4px var(--space-2); gap: 1px; background: #FDF4F8;
+}
+/* Atendimento curto mostra só o nome; o resto aparece ao passar o mouse,
+   tocar (tablet e celular) ou chegar nele pelo Tab. */
+.tl-event:hover, .tl-event:focus-within { z-index: 6; }
+.tl-event:hover .agenda-booking, .tl-event:focus-within .agenda-booking {
+  height: auto; min-height: 100%; min-width: 190px;   /* abre também de lado: na "sem preferência" a faixa pode ser estreita */
+  overflow: visible; background: var(--color-surface);
+  box-shadow: 0 10px 28px rgba(54, 13, 41, 0.16);
+}
+.tl-block {
+  position: absolute; left: 0; right: 0; z-index: 1; overflow: hidden;
+  display: flex; align-items: flex-start; gap: var(--space-1); padding: 3px var(--space-2);
+  font-size: 0.7rem; font-weight: 500; color: #7A5B12;
+  background: repeating-linear-gradient(135deg, #FDF6E3 0 6px, #F8EDCD 6px 12px);
+  border-top: 1px solid #E8D59B; border-bottom: 1px solid #E8D59B;
+}
+.tl-block .icon { flex: none; margin-top: 1px; }
 .week-day-btn { border: 0; background: none; font: inherit; font-size: 0.68rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-foreground); cursor: pointer; padding: var(--space-1); min-height: 34px; }
 .week-day-btn:hover { color: var(--color-primary); }
 .week-day-btn.is-today { color: var(--color-primary); text-decoration: underline; }

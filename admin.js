@@ -29,6 +29,7 @@
     view: "day",              // 'day' | 'week'
     bookings: [], blocks: [], cancelled: [], closed: false,
     nbClientId: null,          // cliente selecionada no balcão
+    rolagemDia: null,          // { dia, top, left } da linha do tempo, para redesenhar sem pular
   };
 
   const hmToMin = (hm) => { const p = hm.split(":").map(Number); return p[0] * 60 + p[1]; };
@@ -144,32 +145,54 @@
       '<button type="button" class="ab-cancel" data-cancel="' + b.id + '" data-client="' + cliente + '">Cancelar</button>';
   }
 
-  /** O que ocupa a coluna (pro ou 'any') no horário t? */
-  /** Conteúdo de uma célula: a linha cobre a hora cheia [t, t + 60min). */
-  function cellContent(proId, t) {
-    const tMin = hmToMin(t);
-    const fimLinha = tMin + 60;
-    const parts = [];
+  // ---------- Agenda: dia, em linha do tempo de 5 em 5 minutos ----------
+  // Cada atendimento é um bloco que começa no minuto exato e tem a altura da
+  // duração — com a grade de 5 minutos, linhas de hora cheia amontoavam
+  // 08:10 e 08:40 na mesma célula e escondiam os buracos livres.
+  const PX_5MIN = 14;                        // altura de cada faixa de 5 minutos
+  const PX_MIN = PX_5MIN / SLOT_STEP;
+  const topo = (min) => Math.round((min - OPEN_MIN) * PX_MIN);
 
-    state.bookings.forEach((b) => {
-      if (b.pro_id !== proId) return;
-      const s = hmToMin(b.time);
-      if (s >= tMin && s < fimLinha) parts.push(bookingCardHTML(b));
-      else if (tMin > s && tMin < s + b.duration_min) {
-        parts.push('<span class="agenda-cont">⤷ ' + escapeHTML(firstName(b.client_name)) + " (até " + minToHm(s + b.duration_min) + ")</span>");
-      }
+  /**
+   * Põe lado a lado o que se sobrepõe (na coluna "sem preferência" pode haver
+   * várias clientes no mesmo horário). Cada item ganha faixa e total de faixas.
+   */
+  function emFaixas(itens) {
+    const ordem = itens.slice().sort((a, b) => a.ini - b.ini || b.fim - a.fim);
+    let grupo = [], fimGrupo = -1;
+    const fechar = () => {
+      const total = Math.max(...grupo.map((g) => g.faixa)) + 1;
+      grupo.forEach((g) => { g.faixas = total; });
+    };
+    ordem.forEach((it) => {
+      if (grupo.length && it.ini >= fimGrupo) { fechar(); grupo = []; fimGrupo = -1; }
+      const ocupadas = grupo.filter((g) => g.fim > it.ini).map((g) => g.faixa);
+      let f = 0;
+      while (ocupadas.includes(f)) f++;
+      it.faixa = f;
+      grupo.push(it);
+      fimGrupo = Math.max(fimGrupo, it.fim);
     });
+    if (grupo.length) fechar();
+    return ordem;
+  }
 
-    if (proId !== "any") {
-      state.blocks.forEach((bl) => {
-        if (bl.pro_id !== proId && bl.pro_id !== "all") return;
-        const s = hmToMin(bl.start), e = hmToMin(bl.end);
-        if (s < fimLinha && e > tMin) {   // o bloqueio encosta em algum minuto desta hora
-          parts.push('<span class="agenda-blocked">' + svgIcon("block", "icon icon-sm") + " " + bl.start + "–" + bl.end + (bl.reason ? " · " + escapeHTML(bl.reason) : "") + "</span>");
-        }
-      });
-    }
-    return parts;
+  function eventoHTML(it) {
+    const altura = Math.max(PX_5MIN * 2, Math.round((it.fim - it.ini) * PX_MIN)) - 2;   // 2px de respiro
+    const largura = 100 / it.faixas;
+    return '<div class="tl-event' + (it.fim - it.ini <= 20 ? " is-curto" : "") + '" tabindex="0" style="' +
+      "top:" + topo(it.ini) + "px;height:" + altura + "px;" +
+      "left:calc(" + (it.faixa * largura) + "% + 3px);width:calc(" + largura + '% - 6px)">' +
+      bookingCardHTML(it.b) + "</div>";
+  }
+
+  function bloqueioHTML(bl) {
+    const ini = Math.max(OPEN_MIN, hmToMin(bl.start));
+    const fim = Math.min(CLOSING_MIN, hmToMin(bl.end));
+    if (fim <= ini) return "";
+    return '<div class="tl-block" style="top:' + topo(ini) + "px;height:" + Math.round((fim - ini) * PX_MIN) + 'px">' +
+      svgIcon("block", "icon icon-sm") + "<span>" + bl.start + "–" + bl.end +
+      (bl.reason ? " · " + escapeHTML(bl.reason) : "") + "</span></div>";
   }
 
   function renderDayGrid() {
@@ -180,22 +203,56 @@
       return;
     }
 
-    let html = '<div class="agenda-scroll"><table class="agenda-table"><thead><tr><th scope="col" class="agenda-time-col">Horário</th>';
-    GRID_PROS.forEach((p) => {
-      html += '<th scope="col"><span class="agenda-pro"><span class="pro-avatar" aria-hidden="true">' + p.initials + "</span>" + p.name + "</span></th>";
-    });
-    html += '<th scope="col"><span class="agenda-pro"><span class="pro-avatar" aria-hidden="true">✦</span>Sem preferência</span></th></tr></thead><tbody>';
+    // Redesenho do mesmo dia (depois de marcar falta, cancelar...): a Aline
+    // continua onde estava, em vez de ser jogada de volta para o topo. A
+    // posição foi anotada pelo loadAgenda antes de a grade antiga sumir.
+    const posicao = state.rolagemDia && state.rolagemDia.dia === state.date ? state.rolagemDia : null;
 
-    GRID_HOURS.forEach((t) => {
-      html += '<tr><th scope="row" class="agenda-time">' + t + "</th>";
-      GRID_PROS.concat([{ id: "any" }]).forEach((p) => {
-        const parts = cellContent(p.id, t);
-        html += '<td class="' + (parts.length ? "has-booking" : "") + '">' +
-          (parts.length ? parts.join("") : '<span class="agenda-free">' + (p.id === "any" ? "—" : "livre") + "</span>") + "</td>";
-      });
-      html += "</tr>";
+    const colunas = GRID_PROS.map((p) => ({ id: p.id, nome: p.name, iniciais: p.initials }))
+      .concat([{ id: "any", nome: "Sem preferência", iniciais: "✦" }]);
+    const faixas5 = (CLOSING_MIN - OPEN_MIN) / SLOT_STEP;
+
+    let html = '<div class="agenda-scroll is-timeline" data-dia="' + state.date + '"><div class="tl" style="--tl-5:' + PX_5MIN +
+      "px;--tl-cols:" + colunas.length + ";--tl-faixas:" + faixas5 + '">';
+
+    html += '<div class="tl-head tl-corner">Horário</div>';
+    colunas.forEach((c) => {
+      html += '<div class="tl-head"><span class="agenda-pro"><span class="pro-avatar" aria-hidden="true">' +
+        c.iniciais + "</span>" + escapeHTML(c.nome) + "</span></div>";
     });
-    wrap.innerHTML = html + "</tbody></table></div>";
+
+    // Régua: toda faixa de 5 minutos com o seu horário; hora cheia e meia hora em destaque
+    html += '<div class="tl-ruler" aria-hidden="true">';
+    for (let m = OPEN_MIN; m < CLOSING_MIN; m += SLOT_STEP) {
+      const tipo = m % 60 === 0 ? " is-hora" : (m % 30 === 0 ? " is-meia" : "");
+      html += '<span class="tl-mark' + tipo + '" style="top:' + topo(m) + 'px">' + minToHm(m) + "</span>";
+    }
+    html += "</div>";
+
+    colunas.forEach((c) => {
+      const bloqueios = c.id === "any" ? [] : state.blocks.filter((bl) => bl.pro_id === c.id || bl.pro_id === "all");
+      const itens = state.bookings
+        .filter((b) => b.pro_id === c.id)
+        .map((b) => {
+          const ini = Math.max(OPEN_MIN, hmToMin(b.time));
+          return { b, ini, fim: Math.min(CLOSING_MIN, ini + (b.duration_min || SLOT_STEP)) };
+        });
+      html += '<div class="tl-col" role="group" aria-label="' + escapeHTML(c.nome) + '">' +
+        bloqueios.map(bloqueioHTML).join("") + emFaixas(itens).map(eventoHTML).join("") + "</div>";
+    });
+
+    wrap.innerHTML = html + "</div></div>";
+
+    const rolagem = wrap.querySelector(".agenda-scroll");
+    if (posicao) {
+      rolagem.scrollTop = posicao.top;
+      rolagem.scrollLeft = posicao.left;
+    } else if (state.date === toISODate(new Date())) {
+      // Hoje: abre perto de agora, com meia hora de contexto acima
+      const agora = new Date();
+      const m = agora.getHours() * 60 + agora.getMinutes();
+      if (m > OPEN_MIN && m < CLOSING_MIN) rolagem.scrollTop = Math.max(0, topo(m - 30));
+    }
   }
 
   function renderBlocksList() {
@@ -306,6 +363,9 @@
   }
 
   function loadAgenda() {
+    // Anota onde a Aline estava na linha do tempo: a grade some agora e volta redesenhada
+    const atual = document.querySelector("#agendaWrap .agenda-scroll.is-timeline");
+    if (atual) state.rolagemDia = { dia: atual.dataset.dia, top: atual.scrollTop, left: atual.scrollLeft };
     $("#agendaWrap").innerHTML = '<div class="bookings-empty"><p>Carregando a agenda…</p></div>';
     renderDayNav();
     return state.view === "week" ? loadWeek() : loadDay();

@@ -252,9 +252,48 @@ function notify_admin(string $subject, string $bodyHtml): void
 /**
  * Lembretes automáticos: clientes com horário AMANHÃ que ainda não
  * receberam aviso. Chamado ao abrir o painel (e por setup/cron_reminders.php).
+ *
+ * Uma rodada por vez: a trava do MySQL (GET_LOCK) faz uma segunda requisição
+ * simultânea — duas abas abrindo o painel juntas — desistir na hora, em vez
+ * de pegar a mesma lista e mandar o mesmo lembrete duas vezes. A trava é
+ * da conexão: se o PHP cair no meio, o MySQL a solta sozinho.
  */
 function send_due_reminders(PDO $pdo): int
 {
+    $trava = "CONCAT(DATABASE(), ':lembretes')";
+    try {
+        $livre = $pdo->query("SELECT GET_LOCK($trava, 0)")->fetchColumn();
+    } catch (Throwable $e) {
+        $livre = null;
+    }
+    if ($livre !== null && (int) $livre === 0) {
+        return 0;   // outra requisição está mandando os lembretes agora
+    }
+    // Sem trava disponível no banco ($livre nulo), segue sem ela, como antes:
+    // melhor arriscar uma duplicata rara do que parar de mandar lembretes.
+    try {
+        return enviar_lembretes_pendentes($pdo);
+    } finally {
+        if ($livre !== null) {
+            try {
+                $pdo->query("SELECT RELEASE_LOCK($trava)");
+            } catch (Throwable $e) {
+                // a trava some sozinha quando a conexão fecha
+            }
+        }
+    }
+}
+
+/**
+ * Só marca como enviado o que foi enviado de fato: o que falhou fica para a
+ * próxima abertura do painel. Para essas novas tentativas não travarem o
+ * painel — que espera os envios —, cada rodada para em ~8 segundos, e um
+ * endereço que acabou de falhar espera meia hora antes de tentar de novo.
+ */
+function enviar_lembretes_pendentes(PDO $pdo): int
+{
+    require_once __DIR__ . '/tentativas.php';
+
     $stmt = $pdo->prepare(
         'SELECT b.id, DATE_FORMAT(b.booking_date, "%d/%m/%Y") AS d,
                 TIME_FORMAT(b.booking_time, "%H:%i") AS t,
@@ -266,7 +305,8 @@ function send_due_reminders(PDO $pdo): int
            LEFT JOIN services s ON s.id = b.service_id
           WHERE b.booking_date = DATE_ADD(CURDATE(), INTERVAL 1 DAY)
             AND b.status = "confirmado"
-            AND b.reminder_sent_at IS NULL'
+            AND b.reminder_sent_at IS NULL
+          ORDER BY b.booking_time, b.id'
     );
     $stmt->execute();
     $due = $stmt->fetchAll();
@@ -274,23 +314,39 @@ function send_due_reminders(PDO $pdo): int
         return 0;
     }
 
-    $mark = $pdo->prepare('UPDATE bookings SET reminder_sent_at = NOW() WHERE id = ?');
-    $sent = 0;
+    // "AND reminder_sent_at IS NULL": nem sem a trava o mesmo lembrete conta duas vezes
+    $mark   = $pdo->prepare('UPDATE bookings SET reminder_sent_at = NOW() WHERE id = ? AND reminder_sent_at IS NULL');
+    $inicio = microtime(true);
+    $sent   = 0;
     foreach ($due as $b) {
-        if (!empty($b['email'])) {
-            $ok = send_app_mail(
-                $b['email'],
-                'Lembrete: seu horário é amanhã!',
-                '<p>Olá, <strong>' . htmlspecialchars($b['client_name'] ?? '') . '</strong>!</p>'
-                . '<p>Passando para lembrar do seu horário no salão:</p>'
-                . '<p style="font-size:17px;"><strong>' . htmlspecialchars($b['service_name'])
-                . '</strong><br>' . $b['d'] . ' às <strong>' . $b['t'] . '</strong></p>'
-                . '<p>Se precisar remarcar, é só cancelar pelo site e escolher um novo horário. Até amanhã! 💕</p>'
-            );
-            if ($ok) { $sent++; }
+        if (empty($b['email'])) {
+            // Balcão sem cadastro: não há para onde mandar, nem agora nem depois.
+            // Marca para não voltar à fila.
+            $mark->execute([$b['id']]);
+            continue;
         }
-        // Marca mesmo sem e-mail (agendamento de balcão) para não reprocessar.
-        $mark->execute([$b['id']]);
+        if (microtime(true) - $inicio > 8) {
+            break;      // o resto sai na próxima abertura do painel
+        }
+        $chave = 'lembrete|' . $b['id'];
+        if (limite_espera($pdo, $chave, 1, 30) !== null) {
+            continue;   // falhou há menos de meia hora
+        }
+        $ok = send_app_mail(
+            $b['email'],
+            'Lembrete: seu horário é amanhã!',
+            '<p>Olá, <strong>' . htmlspecialchars($b['client_name'] ?? '') . '</strong>!</p>'
+            . '<p>Passando para lembrar do seu horário no salão:</p>'
+            . '<p style="font-size:17px;"><strong>' . htmlspecialchars($b['service_name'])
+            . '</strong><br>' . $b['d'] . ' às <strong>' . $b['t'] . '</strong></p>'
+            . '<p>Se precisar remarcar, é só cancelar pelo site e escolher um novo horário. Até amanhã! 💕</p>'
+        );
+        if ($ok) {
+            $mark->execute([$b['id']]);
+            $sent++;
+        } else {
+            limite_registrar($pdo, $chave);   // não marca: tenta de novo mais tarde
+        }
     }
     return $sent;
 }

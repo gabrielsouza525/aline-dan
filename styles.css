@@ -560,7 +560,7 @@ body.menu-open .site-header .btn-logout { color: var(--color-text-muted); }
 
 /* Faixa corrida com a assinatura */
 .marquee { border-block: var(--hairline); padding-block: var(--space-4); overflow: hidden; background: var(--color-surface); }
-.marquee-track { display: flex; gap: var(--space-6); width: max-content; animation: marquee 42s linear infinite; }
+.marquee-track { display: flex; gap: var(--space-6); width: max-content; animation: marquee 20s linear infinite; }
 .marquee span {
   display: inline-flex; align-items: center; gap: var(--space-6);
   font-family: var(--font-display); font-size: 1.5rem; font-style: italic;

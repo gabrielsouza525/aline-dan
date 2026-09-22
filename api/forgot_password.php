@@ -6,6 +6,7 @@
 declare(strict_types=1);
 require __DIR__ . '/config.php';
 require __DIR__ . '/mailer.php';
+require_once __DIR__ . '/tentativas.php';
 
 require_method('POST');
 
@@ -18,6 +19,19 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 
 $pdo  = db();
 tokens_prontos($pdo); // a tabela pode não existir em bancos antigos (lembrar.php)
+
+// Limites. Os dois valem para qualquer e-mail, cadastrado ou não, senão o
+// bloqueio denunciaria quem é cliente:
+//   - por e-mail: 3 pedidos por hora (ninguém recebe dezenas de links);
+//   - geral: 10 envios de verdade por hora no site todo, para quem varre
+//     vários endereços não gastar a cota do servidor de e-mail.
+$espera = limite_espera($pdo, 'esqueci|' . $email, 3, 60)
+    ?? limite_espera($pdo, 'esqueci-envios', 10, 60);
+if ($espera !== null) {
+    header('Retry-After: ' . ($espera * 60));
+    json_response(429, ['error' => 'Muitos pedidos de redefinição agora. Tente de novo em ' . minutos_texto($espera) . '.']);
+}
+limite_registrar($pdo, 'esqueci|' . $email);
 $stmt = $pdo->prepare('SELECT id, name FROM users WHERE email = ?');
 $stmt->execute([$email]);
 $user = $stmt->fetch();
@@ -42,6 +56,7 @@ if ($user !== false) {
         . '<p><a href="' . $link . '" style="display:inline-block;background:#DB2777;color:#fff;padding:12px 24px;border-radius:999px;text-decoration:none;font-weight:bold;">Criar nova senha</a></p>'
         . '<p style="font-size:13px;color:#7A5B6B;">Se não foi você, pode ignorar este e-mail — sua senha continua a mesma.</p>'
     );
+    limite_registrar($pdo, 'esqueci-envios');
 }
 
 json_response(200, ['ok' => true, 'message' => 'Se este e-mail estiver cadastrado, enviamos um link para redefinir a senha.']);

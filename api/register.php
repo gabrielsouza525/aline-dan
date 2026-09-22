@@ -3,6 +3,7 @@
 declare(strict_types=1);
 require __DIR__ . '/config.php';
 require __DIR__ . '/mailer.php';
+require_once __DIR__ . '/tentativas.php';
 
 require_method('POST');
 start_session();
@@ -15,13 +16,15 @@ $password = (string) ($body['password'] ?? '');
 
 $digits = preg_replace('/\D/', '', $phone);
 
-if (mb_strlen($name) < 3) {
-    json_response(422, ['error' => 'Informe seu nome completo (mínimo 3 letras).', 'field' => 'name']);
+// Os máximos são os tamanhos das colunas: acima deles o MySQL recusa a
+// gravação e a pessoa receberia um erro 500 em vez de uma explicação.
+if (mb_strlen($name) < 3 || mb_strlen($name) > 120) {
+    json_response(422, ['error' => 'Informe seu nome completo (entre 3 e 120 letras).', 'field' => 'name']);
 }
-if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 190) {
     json_response(422, ['error' => 'Informe um e-mail válido.', 'field' => 'email']);
 }
-if (strlen($digits) < 10 || strlen($digits) > 11) {
+if (strlen($digits) < 10 || strlen($digits) > 11 || strlen($phone) > 20) {
     json_response(422, ['error' => 'Informe um telefone válido com DDD.', 'field' => 'phone']);
 }
 if (strlen($password) < 6) {
@@ -37,13 +40,23 @@ if ($stmt->fetch() !== false) {
     json_response(409, ['error' => 'Já existe uma conta com esse e-mail. Tente entrar.', 'field' => 'email']);
 }
 
-$stmt = $pdo->prepare(
-    'INSERT INTO users (name, email, phone, password_hash) VALUES (?, ?, ?, ?)'
-);
-$stmt->execute([$name, $email, $phone, password_hash($password, PASSWORD_DEFAULT)]);
+$hash = password_hash($password, PASSWORD_DEFAULT);
+try {
+    $pdo->prepare('INSERT INTO users (name, email, phone, password_hash) VALUES (?, ?, ?, ?)')
+        ->execute([$name, $email, $phone, $hash]);
+} catch (PDOException $e) {
+    // Dois cadastros com o mesmo e-mail ao mesmo tempo: os dois passam pela
+    // checagem acima e o segundo esbarra no índice único da coluna.
+    if ((string) $e->getCode() === '23000') {
+        json_response(409, ['error' => 'Já existe uma conta com esse e-mail. Tente entrar.', 'field' => 'email']);
+    }
+    throw $e;
+}
 
 session_regenerate_id(true);
 $_SESSION['user_id'] = (int) $pdo->lastInsertId();
+sessao_marcar($hash);
+dispositivo_marcar($_SESSION['user_id'], $hash);
 if (!empty($body['remember'])) {
     lembrar_emitir($_SESSION['user_id']);
 }

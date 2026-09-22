@@ -3,6 +3,7 @@
 declare(strict_types=1);
 require __DIR__ . '/config.php';
 require __DIR__ . '/mailer.php';
+require_once __DIR__ . '/tentativas.php';
 
 require_method('POST');
 $user = require_user();
@@ -13,6 +14,16 @@ if (!empty($user['email_verified'])) {
 
 $pdo = db();
 tokens_prontos($pdo); // a tabela pode não existir em bancos antigos (lembrar.php)
+
+// Até 3 reenvios por hora: o botão não vira uma forma de encher a caixa de
+// alguém nem de gastar a cota do servidor de e-mail.
+$chave  = 'confirmacao|' . $user['id'];
+$espera = limite_espera($pdo, $chave, 3, 60);
+if ($espera !== null) {
+    header('Retry-After: ' . ($espera * 60));
+    json_response(429, ['error' => 'Você já pediu alguns e-mails de confirmação. Tente de novo em ' . minutos_texto($espera) . '.']);
+}
+limite_registrar($pdo, $chave);
 $pdo->prepare('UPDATE user_tokens SET used_at = NOW() WHERE user_id = ? AND kind = "verify" AND used_at IS NULL')
     ->execute([$user['id']]);
 

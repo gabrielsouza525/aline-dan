@@ -11,6 +11,13 @@
  *
  * Quando a sessão some mas o cookie existe, start_session() (config.php)
  * chama lembrar_restaurar() e a sessão é refeita sem pedir senha.
+ *
+ * Esse mesmo gancho, que roda em toda requisição com sessão, também:
+ *   - encerra sessões abertas com uma senha que já foi trocada ou redefinida
+ *     (sessao_conferir); e
+ *   - recusa pedidos que mudam dados sem vir como JSON (sessao_bloquear_csrf).
+ * Ficou tudo aqui porque o config.php é o arquivo que não se altera: ele só
+ * chama lembrar_restaurar(), e é daqui para frente que a sessão é cuidada.
  */
 declare(strict_types=1);
 
@@ -109,11 +116,83 @@ function lembrar_emitir(int $userId): void
     lembrar_cookie($token, time() + LEMBRAR_DIAS * 86400);
 }
 
+// ---------- Sessão ----------
+
+/**
+ * Chamado pelo start_session() do config.php em toda requisição com sessão.
+ * O nome ficou do tempo em que só restaurava o "manter conectado".
+ */
+function lembrar_restaurar(): void
+{
+    sessao_bloquear_csrf();
+    sessao_conferir();
+    lembrar_refazer_login();
+}
+
+/**
+ * Pedido que muda dados precisa chegar como JSON. O site sempre manda assim;
+ * um formulário de outro site só consegue mandar texto, formulário comum ou
+ * multipart — é por aí que viria um CSRF. O SameSite=Lax dos cookies já barra
+ * isso nos navegadores atuais; esta checagem cobre os antigos. Pedido sem
+ * corpo (sair, cancelar, reenviar confirmação) segue livre: para esses o
+ * navegador não deixa outro site escolher o método nem o formato.
+ */
+function sessao_bloquear_csrf(): void
+{
+    $metodo = strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET'));
+    if (in_array($metodo, ['GET', 'HEAD', 'OPTIONS'], true)) {
+        return;
+    }
+    $tipo = strtolower(trim((string) ($_SERVER['CONTENT_TYPE'] ?? ($_SERVER['HTTP_CONTENT_TYPE'] ?? ''))));
+    if ($tipo === '' || strpos($tipo, 'application/json') === 0) {
+        return;
+    }
+    json_response(415, ['error' => 'Formato de pedido não aceito.']);
+}
+
+/** Marca da senha que a sessão guarda. Trocar a senha muda a marca. */
+function sessao_marca(string $passwordHash): string
+{
+    return hash('sha256', 'sessao|' . $passwordHash);
+}
+
+/** Login, cadastro, troca de senha: a sessão passa a valer para a senha atual. */
+function sessao_marcar(string $passwordHash): void
+{
+    $_SESSION['sessao_marca'] = sessao_marca($passwordHash);
+}
+
+/**
+ * Sessão aberta com uma senha que já não vale — trocada em outro aparelho ou
+ * redefinida pelo e-mail: encerra, e a pessoa precisa entrar de novo. Sessões
+ * de antes desta checagem (sem marca) também encerram, uma única vez; quem
+ * marcou "manter conectado" volta sozinho logo em seguida.
+ * Sem banco, não mexe: current_user() vai falhar do mesmo jeito.
+ */
+function sessao_conferir(): void
+{
+    if (empty($_SESSION['user_id'])) {
+        return;
+    }
+    try {
+        $stmt = db()->prepare('SELECT password_hash FROM users WHERE id = ?');
+        $stmt->execute([$_SESSION['user_id']]);
+        $hash = $stmt->fetchColumn();
+    } catch (Throwable $e) {
+        return;
+    }
+    $marca = (string) ($_SESSION['sessao_marca'] ?? '');
+    if ($hash === false || !hash_equals(sessao_marca((string) $hash), $marca)) {
+        $_SESSION = [];
+        session_regenerate_id(true);
+    }
+}
+
 /**
  * Sessão vazia e cookie presente: refaz o login sem pedir senha.
  * Nunca derruba a página — sem banco ou com token ruim, só segue deslogado.
  */
-function lembrar_restaurar(): void
+function lembrar_refazer_login(): void
 {
     if (!empty($_SESSION['user_id']) || !isset($_COOKIE[LEMBRAR_COOKIE])) {
         return;
@@ -127,7 +206,7 @@ function lembrar_restaurar(): void
         $pdo = db();
         tokens_prontos($pdo);
         $stmt = $pdo->prepare(
-            'SELECT t.id, t.user_id
+            'SELECT t.id, t.user_id, u.password_hash
                FROM user_tokens t JOIN users u ON u.id = t.user_id
               WHERE t.kind = "remember" AND t.token_hash = ? AND t.expires_at > NOW()'
         );
@@ -139,6 +218,7 @@ function lembrar_restaurar(): void
         }
         session_regenerate_id(true);
         $_SESSION['user_id'] = (int) $row['user_id'];
+        sessao_marcar($row['password_hash']);
 
         // Janela deslizante: quem continua usando o site não é deslogada
         $pdo->prepare('UPDATE user_tokens SET expires_at = DATE_ADD(NOW(), INTERVAL ' . LEMBRAR_DIAS . ' DAY) WHERE id = ?')

@@ -2,6 +2,7 @@
 /** Redefine a senha com o token do e-mail: POST {token, new_password}. */
 declare(strict_types=1);
 require __DIR__ . '/config.php';
+require_once __DIR__ . '/tentativas.php';
 
 require_method('POST');
 
@@ -35,7 +36,19 @@ $pdo->prepare('UPDATE user_tokens SET used_at = NOW() WHERE id = ?')
     ->execute([$row['id']]);
 
 // Quem redefine a senha pode estar tirando alguém da conta: nenhum aparelho
-// continua logado com a senha antiga
+// continua logado com a senha antiga. As sessões abertas caem sozinhas na
+// próxima requisição (a marca de senha delas deixou de bater — lembrar.php),
+// e os aparelhos conhecidos deixam de ser (o cookie deriva da senha).
 lembrar_esquecer_todos((int) $row['user_id']);
+
+// Provou que é dona do e-mail: o bloqueio de login da conta não vale mais.
+// Sem isso, quem redefiniu depois de errar a senha dava de cara com "espere".
+$stmt = $pdo->prepare('SELECT email FROM users WHERE id = ?');
+$stmt->execute([$row['user_id']]);
+$email = (string) $stmt->fetchColumn();
+if ($email !== '') {
+    limite_zerar($pdo, login_chave($email, false));
+    limite_zerar($pdo, login_chave($email, true));
+}
 
 json_response(200, ['ok' => true]);

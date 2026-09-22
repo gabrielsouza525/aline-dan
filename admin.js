@@ -7,7 +7,7 @@
   const {
     SERVICES, PROFESSIONALS, TIME_SLOTS, GRID_HOURS, OPEN_MIN, CLOSING_MIN, SLOT_STEP,
     CLOSED_WEEKDAYS, WEEKDAYS_SHORT, MONTHS_SHORT,
-    api, loadCatalog, svgIcon, escapeHTML, brl, toISODate, fromISODate,
+    api, loadCatalog, svgIcon, escapeHTML, brl, toISODate, fromISODate, durationLabel,
     showToast, setLoading, maskPhone, attachPhoneMask,
   } = window.AD;
   const $ = (sel) => document.querySelector(sel);
@@ -110,7 +110,8 @@
         '<strong class="ab-client">' + escapeHTML(b.client_name || "—") +
           (b.is_guest ? ' <span class="ab-guest">balcão</span>' : "") +
           (b.status === "falta" ? ' <span class="ab-noshow-tag">não veio</span>' : "") + "</strong>" +
-        '<span class="ab-service">' + escapeHTML(b.service_name) + " · " + b.time + "–" + endHm + " · " + brl(b.price) + "</span>" +
+        '<span class="ab-service">' + escapeHTML(b.service_name) + " · " + b.time + "–" + endHm +
+          " · " + durationLabel(b.duration_min) + " · " + brl(b.price) + "</span>" +
         '<span class="ab-actions">' +
           (waLink
             ? '<a class="ab-phone" href="' + waLink + '" target="_blank" rel="noopener" title="Chamar no WhatsApp">' + svgIcon("phone", "icon icon-sm") + escapeHTML(maskPhone(b.client_phone || "")) + "</a>"
@@ -292,7 +293,9 @@
         const items = (byDay[iso + "|" + t.slice(0, 2)] || []).slice().sort((x, y) => x.time.localeCompare(y.time));
         html += '<td class="' + (items.length ? "has-booking" : "") + '">' +
           (items.length
-            ? items.map((b) => '<span class="week-chip" title="' + escapeHTML(b.service_name) + '">' +
+            ? items.map((b) => '<span class="week-chip" title="' + escapeHTML(b.service_name) +
+                " · " + b.time + "–" + minToHm(hmToMin(b.time) + b.duration_min) +
+                " · " + durationLabel(b.duration_min) + '">' +
                 '<b>' + b.time + "</b> " + escapeHTML(firstName(b.client_name)) +
                 ' <em>' + escapeHTML((PROFESSIONALS.find((p) => p.id === b.pro_id) || { initials: "✦" }).initials) + "</em></span>").join("")
             : '<span class="agenda-free">·</span>') + "</td>";

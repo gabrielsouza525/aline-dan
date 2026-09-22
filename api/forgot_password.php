@@ -17,6 +17,7 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 }
 
 $pdo  = db();
+tokens_prontos($pdo); // a tabela pode não existir em bancos antigos (lembrar.php)
 $stmt = $pdo->prepare('SELECT id, name FROM users WHERE email = ?');
 $stmt->execute([$email]);
 $user = $stmt->fetch();

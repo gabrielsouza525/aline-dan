@@ -3,7 +3,7 @@
 -- =====================================================================
 --
 -- Um arquivo só, com TUDO o que o site precisa para funcionar:
---   · as 4 tabelas, já com todas as migrations aplicadas
+--   · as 5 tabelas, já com todas as migrations aplicadas
 --   · os 73 serviços do catálogo, com preço, duração e categoria
 --
 -- Não é preciso importar schema.sql nem as migrations: este arquivo já
@@ -89,6 +89,22 @@ CREATE TABLE IF NOT EXISTS `schedule_blocks` (
   PRIMARY KEY (`id`),
   KEY `idx_block_date` (`block_date`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- Confirmação de e-mail e redefinição de senha.
+-- Faltava na primeira versão deste arquivo; o site agora também a cria
+-- sozinho no primeiro uso (api/lembrar.php).
+CREATE TABLE IF NOT EXISTS `user_tokens` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` int(10) unsigned NOT NULL,
+  `kind` enum('verify','reset') NOT NULL,
+  `token_hash` char(64) NOT NULL,
+  `expires_at` datetime NOT NULL,
+  `used_at` datetime DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_hash` (`token_hash`),
+  KEY `fk_tokens_user` (`user_id`),
+  CONSTRAINT `fk_tokens_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ---------------------------------------------------------------------
 -- Catálogo de serviços (fonte: trinks.com/espaco-lounge-aline-dan)

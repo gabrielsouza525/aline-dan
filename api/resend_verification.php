@@ -12,6 +12,7 @@ if (!empty($user['email_verified'])) {
 }
 
 $pdo = db();
+tokens_prontos($pdo); // a tabela pode não existir em bancos antigos (lembrar.php)
 $pdo->prepare('UPDATE user_tokens SET used_at = NOW() WHERE user_id = ? AND kind = "verify" AND used_at IS NULL')
     ->execute([$user['id']]);
 

@@ -154,3 +154,9 @@ function require_admin(): array
     }
     return $user;
 }
+
+// Tabela de tokens (confirmação de e-mail e redefinição de senha). Carregado
+// só se o arquivo existir, para um envio pela metade não derrubar o site.
+if (is_file(__DIR__ . '/lembrar.php')) {
+    require_once __DIR__ . '/lembrar.php';
+}

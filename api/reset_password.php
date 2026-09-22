@@ -17,6 +17,7 @@ if (!preg_match('/^[a-f0-9]{64}$/', $token)) {
 }
 
 $pdo  = db();
+tokens_prontos($pdo); // a tabela pode não existir em bancos antigos (lembrar.php)
 $stmt = $pdo->prepare(
     'SELECT id, user_id FROM user_tokens
       WHERE kind = "reset" AND token_hash = ? AND used_at IS NULL AND expires_at > NOW()'

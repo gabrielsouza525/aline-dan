@@ -235,8 +235,17 @@ if ($pdo === null) {
 anota(NIVEL_OK, 'Conectado em ' . DB_NAME . '@' . DB_HOST . ' como ' . DB_USER);
 
 // ---------- Tabelas ----------
-$esperadas = ['users', 'services', 'bookings', 'schedule_blocks'];
+$esperadas = ['users', 'services', 'bookings', 'schedule_blocks', 'user_tokens'];
 $existentes = $pdo->query('SHOW TABLES')->fetchAll(PDO::FETCH_COLUMN);
+
+// O banco-completo.sql de 10/09 não trazia user_tokens (cadastro e "esqueci a
+// senha" davam erro 500). Ela depende de users, então só dá para criar depois.
+if (in_array('users', $existentes, true) && !in_array('user_tokens', $existentes, true)) {
+    require_once $raiz . '/api/lembrar.php';
+    tokens_prontos($pdo);
+    anota(NIVEL_OK, 'Tabela user_tokens criada agora (faltava no banco)');
+    $existentes[] = 'user_tokens';
+}
 $faltando = array_diff($esperadas, $existentes);
 
 if ($faltando) {

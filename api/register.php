@@ -29,6 +29,7 @@ if (strlen($password) < 6) {
 }
 
 $pdo = db();
+tokens_prontos($pdo); // a tabela pode não existir em bancos antigos (lembrar.php)
 
 $stmt = $pdo->prepare('SELECT id FROM users WHERE email = ?');
 $stmt->execute([$email]);

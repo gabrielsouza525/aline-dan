@@ -56,26 +56,24 @@ if ($userId > 0) {
 }
 
 try {
-    $pdo->beginTransaction();
-    $ctx = day_context($pdo, $date, true);
-    if (slot_conflict($ctx, $time, $svc['duration_min'], $proId)) {
-        $pdo->rollBack();
-        json_response(409, ['error' => 'Esse horário não comporta este serviço (conflito na agenda).']);
-    }
-    $stmt = $pdo->prepare(
-        'INSERT INTO bookings (user_id, service_id, pro_id, booking_date, booking_time,
-                               guest_name, guest_phone, price, duration_min)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
-    );
-    $stmt->execute([$userId, $serviceId, $proId, $date, $time,
+    $id = em_transacao($pdo, static function () use ($pdo, $date, $time, $svc, $proId, $userId, $serviceId, $guestName, $guestPhone): int {
+        $ctx = day_context($pdo, $date, true);
+        if (slot_conflict($ctx, $time, $svc['duration_min'], $proId)) {
+            return 0;
+        }
+        $pdo->prepare(
+            'INSERT INTO bookings (user_id, service_id, pro_id, booking_date, booking_time,
+                                   guest_name, guest_phone, price, duration_min)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+        )->execute([$userId, $serviceId, $proId, $date, $time,
                     $guestName, $guestPhone, $svc['price'], $svc['duration_min']]);
-    $id = (int) $pdo->lastInsertId();
-    $pdo->commit();
+        return (int) $pdo->lastInsertId();
+    });
 } catch (Throwable $e) {
-    if ($pdo->inTransaction()) {
-        $pdo->rollBack();
-    }
     json_response(500, ['error' => 'Não foi possível salvar. Tente novamente.']);
+}
+if ($id === 0) {
+    json_response(409, ['error' => 'Esse horário não comporta este serviço (conflito na agenda).']);
 }
 
 json_response(201, ['booking' => ['id' => $id]]);

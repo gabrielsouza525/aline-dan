@@ -12,10 +12,11 @@ $phone = trim((string) ($body['phone'] ?? ''));
 
 $digits = preg_replace('/\D/', '', $phone);
 
-if (mb_strlen($name) < 3) {
-    json_response(422, ['error' => 'Informe seu nome completo (mínimo 3 letras).', 'field' => 'name']);
+// Máximos = tamanhos das colunas: acima deles o MySQL recusa e viraria erro 500
+if (mb_strlen($name) < 3 || mb_strlen($name) > 120) {
+    json_response(422, ['error' => 'Informe seu nome completo (entre 3 e 120 letras).', 'field' => 'name']);
 }
-if (strlen($digits) < 10 || strlen($digits) > 11) {
+if (strlen($digits) < 10 || strlen($digits) > 11 || strlen($phone) > 20) {
     json_response(422, ['error' => 'Informe um telefone válido com DDD.', 'field' => 'phone']);
 }
 

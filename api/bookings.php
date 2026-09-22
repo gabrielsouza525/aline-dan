@@ -69,24 +69,22 @@ if ($method === 'POST') {
     }
 
     try {
-        $pdo->beginTransaction();
-        $ctx = day_context($pdo, $date, true); // trava o dia contra corrida
-        if (slot_conflict($ctx, $time, $svc['duration_min'], $proId)) {
-            $pdo->rollBack();
-            json_response(409, ['error' => 'Esse horário não está mais disponível para este serviço. Escolha outro, por favor.']);
-        }
-        $stmt = $pdo->prepare(
-            'INSERT INTO bookings (user_id, service_id, pro_id, booking_date, booking_time, price, duration_min)
-             VALUES (?, ?, ?, ?, ?, ?, ?)'
-        );
-        $stmt->execute([$user['id'], $serviceId, $proId, $date, $time, $svc['price'], $svc['duration_min']]);
-        $id = (int) $pdo->lastInsertId();
-        $pdo->commit();
+        $id = em_transacao($pdo, static function () use ($pdo, $date, $time, $svc, $proId, $user, $serviceId): int {
+            $ctx = day_context($pdo, $date, true); // trava o dia contra corrida
+            if (slot_conflict($ctx, $time, $svc['duration_min'], $proId)) {
+                return 0;   // horário tomado: nada é gravado
+            }
+            $pdo->prepare(
+                'INSERT INTO bookings (user_id, service_id, pro_id, booking_date, booking_time, price, duration_min)
+                 VALUES (?, ?, ?, ?, ?, ?, ?)'
+            )->execute([$user['id'], $serviceId, $proId, $date, $time, $svc['price'], $svc['duration_min']]);
+            return (int) $pdo->lastInsertId();
+        });
     } catch (Throwable $e) {
-        if ($pdo->inTransaction()) {
-            $pdo->rollBack();
-        }
         json_response(500, ['error' => 'Não foi possível salvar. Tente novamente.']);
+    }
+    if ($id === 0) {
+        json_response(409, ['error' => 'Esse horário não está mais disponível para este serviço. Escolha outro, por favor.']);
     }
 
     // Aviso para a administração (falha de e-mail não afeta o agendamento)
@@ -160,25 +158,27 @@ if ($method === 'PUT') {
     }
 
     try {
-        $pdo->beginTransaction();
-        // ignora o próprio agendamento para ele não bloquear a si mesmo
-        $ctx = day_context($pdo, $date, true, $id);
-        if (slot_conflict($ctx, $time, (int) $booking['duration_min'], $proId)) {
-            $pdo->rollBack();
-            json_response(409, ['error' => 'Esse horário não está disponível para este serviço. Escolha outro, por favor.']);
-        }
-        $stmt = $pdo->prepare(
-            'UPDATE bookings
-                SET booking_date = ?, booking_time = ?, pro_id = ?, reminder_sent_at = NULL
-              WHERE id = ?'
-        );
-        $stmt->execute([$date, $time, $proId, $id]);
-        $pdo->commit();
+        $remarcou = em_transacao($pdo, static function () use ($pdo, $date, $time, $proId, $id, $booking): bool {
+            // ignora o próprio agendamento para ele não bloquear a si mesmo
+            $ctx = day_context($pdo, $date, true, $id);
+            if (slot_conflict($ctx, $time, (int) $booking['duration_min'], $proId)) {
+                return false;
+            }
+            // status na condição: se ele foi cancelado entre a leitura lá em
+            // cima e aqui, não ressuscita como confirmado em outro horário
+            $stmt = $pdo->prepare(
+                'UPDATE bookings
+                    SET booking_date = ?, booking_time = ?, pro_id = ?, reminder_sent_at = NULL
+                  WHERE id = ? AND status = "confirmado"'
+            );
+            $stmt->execute([$date, $time, $proId, $id]);
+            return $stmt->rowCount() === 1;
+        });
     } catch (Throwable $e) {
-        if ($pdo->inTransaction()) {
-            $pdo->rollBack();
-        }
         json_response(500, ['error' => 'Não foi possível remarcar. Tente novamente.']);
+    }
+    if (!$remarcou) {
+        json_response(409, ['error' => 'Esse horário não está disponível para este serviço. Escolha outro, por favor.']);
     }
 
     if (!$isAdmin) {

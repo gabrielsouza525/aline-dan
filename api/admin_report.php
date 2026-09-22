@@ -30,9 +30,11 @@ function month_totals(PDO $pdo, string $month): array
     $stmt->execute([$start, $end]);
     $r = $stmt->fetch();
 
+    // Intervalo semiaberto [dia 1, dia seguinte ao último): created_at tem hora,
+    // e o BETWEEN antigo incluía o 00:00:00 do mês seguinte nos dois meses.
     $stmt = $pdo->prepare(
         'SELECT COUNT(*) AS c FROM users
-          WHERE role = "client" AND created_at BETWEEN ? AND DATE_ADD(?, INTERVAL 1 DAY)'
+          WHERE role = "client" AND created_at >= ? AND created_at < DATE_ADD(?, INTERVAL 1 DAY)'
     );
     $stmt->execute([$start, $end]);
     $new = (int) $stmt->fetch()['c'];

@@ -12,9 +12,12 @@ if (mb_strlen($q) < 2) {
 }
 
 $like = '%' . $q . '%';
+// Só clientes: a busca serve para marcar horário no balcão, e a conta da
+// administração não é cliente (users.role é enum('client','admin')).
 $stmt = db()->prepare(
     'SELECT id, name, email, phone FROM users
-      WHERE name LIKE ? OR email LIKE ? OR phone LIKE ?
+      WHERE role = "client"
+        AND (name LIKE ? OR email LIKE ? OR phone LIKE ?)
       ORDER BY name LIMIT 8'
 );
 $stmt->execute([$like, $like, $like]);

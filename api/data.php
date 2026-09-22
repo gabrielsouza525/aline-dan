@@ -199,6 +199,37 @@ function change_deadline_message(string $verbo): string
         . 'Fale com o salão pelo WhatsApp (18) 99665-5263 que a gente dá um jeito.';
 }
 
+/**
+ * Roda $fn numa transação e a repete se o MySQL escolher esta transação como
+ * vítima de deadlock (erro 1213).
+ *
+ * Duas reservas simultâneas para o mesmo dia travam o mesmo trecho do índice
+ * (o FOR UPDATE do day_context) e o MySQL derruba uma delas. A dupla reserva
+ * nunca acontecia, mas quem perdia recebia "não foi possível salvar". Na nova
+ * tentativa ela enxerga a reserva que ganhou e recebe a resposta certa:
+ * horário indisponível.
+ */
+function em_transacao(PDO $pdo, callable $fn)
+{
+    for ($tentativa = 1; ; $tentativa++) {
+        try {
+            $pdo->beginTransaction();
+            $resultado = $fn();
+            $pdo->commit();
+            return $resultado;
+        } catch (PDOException $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            if ((int) ($e->errorInfo[1] ?? 0) === 1213 && $tentativa < 4) {
+                usleep(random_int(15000, 60000));   // espaça as retentativas
+                continue;
+            }
+            throw $e;
+        }
+    }
+}
+
 // ---------- Motor de disponibilidade ----------
 
 /**

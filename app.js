@@ -10,7 +10,7 @@
     categorySummary,
     WEEKDAYS_SHORT, MONTHS_SHORT,
     svgIcon, escapeHTML, brl, priceLabel, serviceCategories,
-    toISODate, fromISODate, formatDateLong,
+    toISODate, fromISODate, formatDateLong, endTime, durationLabel,
     api, loadCatalog, showToast, setLoading, maskPhone, attachPhoneMask,
     savePendingBooking, takePendingBooking,
   } = window.AD;
@@ -873,6 +873,10 @@
       const svc = { name: b.service_name || b.service_id };
       const pro = PROFESSIONALS.find((p) => p.id === b.pro_id) || { name: b.pro_id };
       const d = fromISODate(b.date);
+      // Mesma regra da área da cliente: a duração vem congelada no agendamento.
+      const dur = Number(b.duration_min) || 0;
+      const faixa = dur > 0 ? b.time + " – " + endTime(b.time, dur) : b.time;
+      const quanto = dur > 0 ? durationLabel(dur) + " de duração · " : "";
       return (
         '<div class="booking-item">' +
           '<div class="bi-date" aria-hidden="true">' +
@@ -880,8 +884,8 @@
             '<span class="bi-month">' + MONTHS_SHORT[d.getMonth()] + "</span>" +
           "</div>" +
           '<div class="bi-info">' +
-            "<strong>" + svc.name + " · " + b.time + "</strong>" +
-            "<span>" + formatDateLong(b.date) + " · com " + pro.name + "</span>" +
+            "<strong>" + svc.name + " · " + faixa + "</strong>" +
+            "<span>" + formatDateLong(b.date) + " · " + quanto + "com " + pro.name + "</span>" +
           "</div>" +
           '<button type="button" class="btn-cancel" data-cancel="' + b.id + '">Cancelar</button>' +
         "</div>"

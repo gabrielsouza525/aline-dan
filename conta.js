@@ -6,17 +6,13 @@
   "use strict";
   const {
     SERVICES, PROFESSIONALS, MONTHS_SHORT, endTime, durationLabel,
-    TIME_SLOTS, CLOSED_WEEKDAYS, WEEKDAYS_SHORT, slotsHTML, SALON_WHATSAPP, MAX_DAYS_AHEAD,
+    TIME_SLOTS, CLOSED_WEEKDAYS, WEEKDAYS_SHORT, slotsHTML, SALON_WHATSAPP, MAX_DAYS_AHEAD, CANCEL_LIMIT_HOURS,
     api, loadCatalog, svgIcon, escapeHTML, brl, fromISODate, formatDateLong, toISODate,
     showToast, setLoading, maskPhone, attachPhoneMask, setupPasswordToggles,
   } = window.AD;
   const $ = (sel) => document.querySelector(sel);
 
   const state = { user: null, bookings: [] };
-
-  // Igual ao CANCEL_LIMIT_MINUTES do servidor (api/data.php). Aqui s\u00f3 para o
-  // texto: quem decide se ainda d\u00e1 para mexer \u00e9 o campo can_change da API.
-  const CANCEL_LIMIT_HOURS = 4;
 
   // ---------- Perfil ----------
   function renderProfile() {

@@ -109,6 +109,10 @@ window.AD = (function () {
   // Até quantos dias à frente dá para agendar ou remarcar. Igual ao
   // MAX_DAYS_AHEAD de api/data.php — o servidor recusa o que passar disso.
   const MAX_DAYS_AHEAD = 60;
+  // Até quantas horas antes a cliente cancela ou remarca sozinha. Igual ao
+  // CANCEL_LIMIT_MINUTES de api/data.php; aqui é só para o texto — quem
+  // decide se ainda dá é o campo can_change que a API manda.
+  const CANCEL_LIMIT_HOURS = 4;
   const SALON_WHATSAPP = "5518996655263";
 
   const SLOT_STEP = 5;         // minutos entre um horário e o seguinte
@@ -405,7 +409,7 @@ window.AD = (function () {
 
   return {
     SERVICES, PROFESSIONALS, TIME_SLOTS, CLOSED_WEEKDAYS, SALON_WHATSAPP,
-    SLOT_STEP, OPEN_MIN, CLOSING_MIN, GRID_HOURS, slotsHTML, MAX_DAYS_AHEAD,
+    SLOT_STEP, OPEN_MIN, CLOSING_MIN, GRID_HOURS, slotsHTML, MAX_DAYS_AHEAD, CANCEL_LIMIT_HOURS,
     ICONS, WEEKDAYS_SHORT, MONTHS_SHORT,
     svgIcon, escapeHTML, brl, priceLabel, serviceCategories, CATEGORY_INFO, categorySummary,
     catalogoVazio, catalogoVazioHTML,

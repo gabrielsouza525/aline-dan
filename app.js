@@ -5,7 +5,7 @@
 (function () {
   "use strict";
   const {
-    SERVICES, PROFESSIONALS, TIME_SLOTS, CLOSED_WEEKDAYS, SALON_WHATSAPP, slotsHTML, MAX_DAYS_AHEAD,
+    SERVICES, PROFESSIONALS, TIME_SLOTS, CLOSED_WEEKDAYS, SALON_WHATSAPP, slotsHTML, MAX_DAYS_AHEAD, CANCEL_LIMIT_HOURS,
     catalogoVazio, catalogoVazioHTML,
     categorySummary,
     WEEKDAYS_SHORT, MONTHS_SHORT,
@@ -893,7 +893,14 @@
             "<strong>" + escapeHTML(svc.name) + " · " + escapeHTML(faixa) + "</strong>" +
             "<span>" + formatDateLong(b.date) + " · " + quanto + "com " + escapeHTML(pro.name) + "</span>" +
           "</div>" +
-          '<button type="button" class="btn-cancel" data-cancel="' + b.id + '">Cancelar</button>' +
+          (b.can_change === false
+            // Passou o prazo: o mesmo aviso da área da cliente, em vez de um
+            // botão que o servidor vai recusar.
+            ? '<div class="bi-locked">' + svgIcon("clock", "icon icon-sm") +
+                "<span>Faltam menos de " + CANCEL_LIMIT_HOURS + "h. Para cancelar ou remarcar, " +
+                '<a href="https://wa.me/' + SALON_WHATSAPP + '" target="_blank" rel="noopener">fale com o salão</a>.</span>' +
+              "</div>"
+            : '<button type="button" class="btn-cancel" data-cancel="' + b.id + '">Cancelar</button>') +
         "</div>"
       );
     }).join("") +

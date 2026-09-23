@@ -322,9 +322,11 @@
     state.closed = false;
     renderDayNav();
 
-    // Resumo da semana
-    $("#statBookings").textContent = String(bookings.length);
-    $("#statRevenue").textContent = brl(bookings.reduce((s, b) => s + (b.price || 0), 0));
+    // Resumo da semana — mesma regra do dia: falta não conta como atendimento
+    const feitos = bookings.filter((b) => b.status !== "falta");
+    const faltas = bookings.length - feitos.length;
+    $("#statBookings").textContent = String(feitos.length) + (faltas ? " (+" + faltas + " falta" + (faltas > 1 ? "s" : "") + ")" : "");
+    $("#statRevenue").textContent = brl(feitos.reduce((s, b) => s + (b.price || 0), 0));
     $("#statFree").textContent = freeHours(days.length);
     $("#blocksList").innerHTML = "";
     renderCancelledList();
@@ -534,8 +536,10 @@
 
     $("#blkAllDay").addEventListener("change", (ev) => {
       const on = ev.target.checked;
-      $("#blkStart").value = "09:00";
-      $("#blkEnd").value = "18:00";
+      // do primeiro ao último horário do salão; começar às 09h deixava a
+      // primeira hora aberta para a cliente marcar num dia "bloqueado"
+      $("#blkStart").value = minToHm(OPEN_MIN);
+      $("#blkEnd").value = minToHm(CLOSING_MIN);
       $("#blkStart").disabled = on;
       $("#blkEnd").disabled = on;
     });
@@ -585,7 +589,7 @@
   function serviceRowHTML(s) {
     const durOpts = DURATIONS.map((d) => '<option value="' + d + '"' + (d === s.duration_min ? " selected" : "") + ">" + d + " min</option>").join("");
     return (
-      '<form class="service-row' + (s.active ? "" : " is-inactive") + '" data-service-id="' + (s.id || "") + '">' +
+      '<form class="service-row' + (s.active ? "" : " is-inactive") + '" data-service-id="' + (s.id || "") + '" data-icon="' + escapeHTML(s.icon || "sparkles") + '">' +
         '<div class="service-row-grid">' +
           '<div class="form-field"><label>Nome</label><input type="text" name="name" value="' + escapeHTML(s.name || "") + '" minlength="3" required /></div>' +
           '<div class="form-field"><label>Categoria</label><input type="text" name="category" value="' + escapeHTML(s.category || "") + '" maxlength="40" list="categoryList" required /></div>' +
@@ -633,7 +637,8 @@
       duration_min: Number(form.querySelector('[name="duration_min"]').value),
       price: Number(form.querySelector('[name="price"]').value),
       price_from: form.querySelector('[name="price_from"]').checked,
-      icon: "sparkles",
+      // o formulário não edita o ícone: salvar mantém o que o serviço já tem
+      icon: form.dataset.icon || "sparkles",
       active: form.querySelector('[name="active"]').checked,
     };
 

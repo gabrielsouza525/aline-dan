@@ -201,7 +201,9 @@ legend { padding: 0; }
 .btn-whatsapp:hover { background: #0B6334; border-color: #0B6334; }
 .btn-sm { min-height: 42px; padding: var(--space-2) var(--space-4); font-size: 0.72rem; }
 .btn-lg { min-height: 58px; padding: var(--space-4) var(--space-7); font-size: 0.86rem; }
-.btn-block { width: 100%; }
+/* Ocupa a largura toda; se o texto não couber (celular estreito), quebra a
+   linha em vez de empurrar a página para o lado. */
+.btn-block { width: 100%; white-space: normal; text-align: center; }
 .btn[disabled] { opacity: 0.45; cursor: not-allowed; }
 
 .btn-spinner {

@@ -19,6 +19,7 @@
     switch (params.get("next")) {
       case "agendar": return "agendar.html";
       case "inicio":  return "index.html";
+      case "conta":   return "minha-conta.html";
       case "admin":   return "admin.html";
       default:
         // Administradora sem destino definido vai direto para o painel.

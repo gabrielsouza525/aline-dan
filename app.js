@@ -803,6 +803,12 @@
     $("#bookingForm").hidden = false;
     $("#stepsIndicator").hidden = false;
     $("#stepsCount").hidden = false;
+    // O reset do formulário volta os rádios ao HTML de quando foram desenhados —
+    // o serviço que veio pela URL continuaria marcado, mas sem valer. Redesenha
+    // a partir do estado limpo, e o calendário volta para o mês atual.
+    cal.ano = 0;
+    renderServiceOptions();
+    renderProOptions();
     goToStep(1);
   }
 
